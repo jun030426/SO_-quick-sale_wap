@@ -5,7 +5,7 @@ function Header() {
     <header className="site-header">
       <div className="container header-inner">
         <Link to="/" className="logo">
-          <span className="logo-icon" aria-hidden="true">🏠</span>
+          <span className="logo-icon" aria-hidden="true"></span>
         </Link>
 
         <nav className="nav">
