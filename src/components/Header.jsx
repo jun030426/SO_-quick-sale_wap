@@ -17,6 +17,12 @@ function Header() {
           </NavLink>
         </nav>
 
+        <div className="stamp-wrap">
+          <div className="stamp" aria-label="급매 스탬프">
+            급매
+          </div>
+        </div>
+
         <div className="header-actions">
           <button className="btn btn-outline">로그인</button>
           <button className="btn btn-primary">알림 설정</button>

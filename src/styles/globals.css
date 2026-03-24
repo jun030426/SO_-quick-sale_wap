@@ -74,12 +74,47 @@ img {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
+  position: relative;
 }
 
 .logo {
   font-size: 28px;
   font-weight: 800;
   color: #111827;
+}
+
+.stamp-wrap {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  pointer-events: none;
+}
+
+.stamp {
+  display: inline-block;
+  padding: 6px 14px;
+  border: 2px solid #dc2626;
+  background: rgba(254, 226, 226, 0.9);
+  color: #b91c1c;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transform: rotate(-10deg);
+  box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.2), inset 0 0 0 1px rgba(220, 38, 38, 0.4);
+  border-radius: 4px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.stamp::before {
+  content: "A4";
+  display: block;
+  font-size: 10px;
+  color: #b91c1c;
+  text-align: right;
+  margin-bottom: 2px;
+  opacity: 0.6;
+  letter-spacing: 0.5px;
 }
 
 .nav {
