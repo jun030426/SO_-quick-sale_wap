@@ -1,0 +1,37 @@
+.listings-hero {
+  padding: 56px 0 24px;
+}
+
+.listings-filter-section {
+  padding: 12px 0 20px;
+}
+
+.filter-box {
+  background-color: #ffffff;
+  border-radius: 24px;
+  padding: 22px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 14px;
+}
+
+.result-count {
+  margin: 14px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.listings-result-section {
+  padding: 20px 0 72px;
+}
+
+@media (max-width: 768px) {
+  .filter-row {
+    grid-template-columns: 1fr;
+  }
+}
