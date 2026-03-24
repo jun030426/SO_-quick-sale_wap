@@ -9,8 +9,8 @@ body,
   padding: 0;
   min-height: 100%;
   font-family: Arial, Helvetica, sans-serif;
-  color: #e2e8f0;
-  background-color: #0f172a;
+  color: #d6d6dc;
+  background-color: #121323;
 }
 
 a {
@@ -19,59 +19,59 @@ a {
 }
 
 .site-header {
-  background: rgba(15, 23, 42, 0.95);
-  border-bottom: 1px solid #334155;
+  background: rgba(18, 19, 35, 0.95);
+  border-bottom: 1px solid #2f324b;
 }
 
 .site-footer {
-  background-color: #020617;
-  border-top: 1px solid #334155;
+  background-color: #0f101f;
+  border-top: 1px solid #2f324b;
 }
 
 .listing-card {
-  background: #111827;
-  border: 1px solid #334155;
+  background: #1b1e32;
+  border: 1px solid #2f324b;
 }
 
 .nav-link {
-  color: #cbd5e1;
+  color: #a8abb8;
 }
 
 .nav-link.active {
-  color: #f43f5e;
+  color: #be94a2;
 }
 
 .section-label {
-  color: #f472b6;
+  color: #b07b8f;
 }
 
 .page-desc {
-  color: #cbd5e1;
+  color: #a8abb8;
 }
 
 .btn-primary {
-  background-color: #f43f5e;
-  color: #ffffff;
+  background-color: #a17d8c;
+  color: #fff;
 }
 
 .btn-outline {
-  background-color: #020617;
-  border-color: #475569;
-  color: #e2e8f0;
+  background-color: #151b30;
+  border-color: #3f4562;
+  color: #d6d6dc;
 }
 
 .btn-outline:hover {
-  background-color: #1e293b;
+  background-color: #252c47;
 }
 
 .search-input {
-  background-color: #020617;
-  border: 1px solid #334155;
-  color: #e2e8f0;
+  background-color: #151b30;
+  border: 1px solid #2f324b;
+  color: #d6d6dc;
 }
 
 .search-input:focus {
-  border-color: #f43f5e;
+  border-color: #a17d8c;
 }
 
 
