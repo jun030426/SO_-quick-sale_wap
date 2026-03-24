@@ -9,14 +9,71 @@ body,
   padding: 0;
   min-height: 100%;
   font-family: Arial, Helvetica, sans-serif;
-  color: #111827;
-  background-color: #f8fafc;
+  color: #e2e8f0;
+  background-color: #0f172a;
 }
 
 a {
   text-decoration: none;
   color: inherit;
 }
+
+.site-header {
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom: 1px solid #334155;
+}
+
+.site-footer {
+  background-color: #020617;
+  border-top: 1px solid #334155;
+}
+
+.listing-card {
+  background: #111827;
+  border: 1px solid #334155;
+}
+
+.nav-link {
+  color: #cbd5e1;
+}
+
+.nav-link.active {
+  color: #f43f5e;
+}
+
+.section-label {
+  color: #f472b6;
+}
+
+.page-desc {
+  color: #cbd5e1;
+}
+
+.btn-primary {
+  background-color: #f43f5e;
+  color: #ffffff;
+}
+
+.btn-outline {
+  background-color: #020617;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+.btn-outline:hover {
+  background-color: #1e293b;
+}
+
+.search-input {
+  background-color: #020617;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+.search-input:focus {
+  border-color: #f43f5e;
+}
+
 
 button,
 input,
