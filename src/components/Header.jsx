@@ -5,7 +5,8 @@ function Header() {
     <header className="site-header">
       <div className="container header-inner">
         <Link to="/" className="logo">
-          급매
+          <span className="logo-icon" aria-hidden="true">🏠</span>
+          <span className="logo-text">급매</span>
         </Link>
 
         <nav className="nav">
