@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useMarketplace } from "../context/MarketplaceContext";
 import { formatDate } from "../utils/marketplace";
 import "../styles/account.css";
@@ -16,6 +16,7 @@ const registerInitial = {
 };
 
 function Account() {
+  const navigate = useNavigate();
   const {
     user,
     inquiries,
@@ -43,9 +44,9 @@ function Account() {
     event.preventDefault();
 
     try {
-      const response = await login(loginForm);
+      await login(loginForm);
       setLoginForm(loginInitial);
-      applyFeedback(response?.message || "로그인이 완료되었습니다.", "success");
+      navigate("/", { replace: true });
     } catch (error) {
       applyFeedback(error.message, "danger");
     }
@@ -55,9 +56,9 @@ function Account() {
     event.preventDefault();
 
     try {
-      const response = await register(registerForm);
+      await register(registerForm);
       setRegisterForm(registerInitial);
-      applyFeedback(response?.message || "회원가입이 완료되었습니다.", "success");
+      navigate("/", { replace: true });
     } catch (error) {
       applyFeedback(error.message, "danger");
     }

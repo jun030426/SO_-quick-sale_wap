@@ -4,7 +4,7 @@
 
 .market-summary-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin-top: 26px;
 }
@@ -29,14 +29,14 @@
   font-weight: 700;
 }
 
-.listings-layout {
+.listings-shell {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
   gap: 24px;
 }
 
-.filter-panel,
-.results-panel {
+.map-filter-dock,
+.map-stage,
+.map-results-panel {
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
@@ -44,20 +44,146 @@
   box-shadow: var(--shadow-md);
 }
 
-.filter-panel {
-  display: flex;
-  flex-direction: column;
+.map-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.map-filter-grid .wide {
+  grid-column: span 2;
+}
+
+.map-filter-foot {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
   gap: 18px;
+  align-items: end;
+  margin-top: 18px;
+}
+
+.filter-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+}
+
+.discount-box {
+  display: grid;
+  gap: 8px;
+  min-width: 220px;
+}
+
+.discount-box label {
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.discount-box span {
+  color: var(--accent-strong);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.reset-btn {
+  min-width: 144px;
+}
+
+.map-layout {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  gap: 24px;
+}
+
+.map-stage {
+  display: grid;
+  gap: 20px;
   align-self: start;
   position: sticky;
   top: 102px;
+}
+
+.map-stage-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.map-stage-head h2 {
+  margin: 10px 0 0;
+  font-size: 30px;
+}
+
+.map-stage-canvas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.district-hotspot {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.district-hotspot:hover {
+  transform: translateY(-2px);
+  border-color: rgba(213, 170, 100, 0.24);
+}
+
+.district-hotspot strong {
+  font-size: 22px;
+}
+
+.district-hotspot span,
+.district-hotspot small,
+.district-hotspot p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.district-hotspot p {
+  font-size: 13px;
+}
+
+.district-hotspot.active {
+  border-color: rgba(213, 170, 100, 0.26);
+  background: rgba(213, 170, 100, 0.1);
+}
+
+.map-stage-note {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.map-stage-note p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.map-results-panel {
+  display: grid;
+  gap: 22px;
 }
 
 .results-toolbar {
   display: flex;
   justify-content: space-between;
   gap: 18px;
-  margin-bottom: 24px;
 }
 
 .results-count {
@@ -66,28 +192,72 @@
   font-weight: 800;
 }
 
-.toolbar-select {
-  min-width: 220px;
+.spotlight-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
 
-@media (max-width: 1100px) {
+.spotlight-card {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.spotlight-card strong {
+  font-size: 22px;
+}
+
+.spotlight-card p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.spotlight-card b {
+  color: var(--accent-strong);
+  font-size: 18px;
+}
+
+@media (max-width: 1180px) {
   .market-summary-grid,
-  .listings-layout {
+  .map-filter-grid,
+  .spotlight-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .map-filter-grid .wide {
+    grid-column: auto;
+  }
+
+  .map-layout {
     grid-template-columns: 1fr;
   }
 
-  .filter-panel {
+  .map-stage {
     position: static;
   }
 }
 
 @media (max-width: 768px) {
-  .filter-panel,
-  .results-panel {
+  .market-summary-grid,
+  .map-filter-grid,
+  .map-filter-foot,
+  .map-stage-canvas,
+  .spotlight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .map-filter-dock,
+  .map-stage,
+  .map-results-panel {
     padding: 18px;
   }
 
-  .results-toolbar {
+  .filter-inline {
     flex-direction: column;
+    align-items: flex-start;
   }
 }

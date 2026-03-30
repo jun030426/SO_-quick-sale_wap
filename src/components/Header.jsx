@@ -6,8 +6,8 @@ function Header() {
 
   const navItems = [
     { to: "/", label: "홈" },
-    { to: "/listings", label: "검증 매물" },
-    { to: "/alerts", label: "알림 센터" },
+    { to: "/listings", label: "급매 지도" },
+    { to: "/alerts", label: "급매 알림" },
     { to: "/sell", label: "매도 등록" },
     { to: "/account", label: isAuthenticated ? "내 계정" : "로그인" },
   ];

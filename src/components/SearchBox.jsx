@@ -124,7 +124,7 @@ function SearchBox() {
       </div>
 
       <button type="submit" className="btn btn-primary search-submit">
-        AI 인증 급매 찾기
+        급매 지도 열기
       </button>
     </form>
   );

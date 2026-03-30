@@ -138,7 +138,7 @@ function Home() {
                 급매 알림 설정
               </Link>
               <Link to="/listings" className="btn btn-outline">
-                아파트 둘러보기
+                급매 지도 보기
               </Link>
             </div>
 
@@ -307,7 +307,7 @@ function Home() {
             <h2>관심 단지와 예산을 저장해두세요</h2>
             <p>새 급매가 올라오는 순간 가장 먼저 반응할 수 있도록 조건 알림을 계정에 저장합니다.</p>
             <Link to="/alerts" className="btn btn-dark">
-              알림 센터 가기
+              급매 알림 가기
             </Link>
           </article>
 

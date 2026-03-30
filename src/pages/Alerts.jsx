@@ -66,8 +66,8 @@ function Alerts() {
     <div className="page-shell">
       <section className="page-hero">
         <div className="container">
-          <span className="eyebrow">Alert Center</span>
-          <h1 className="page-title">조건을 저장해두면 새 급매를 놓치지 않습니다</h1>
+          <span className="eyebrow">급매 알림</span>
+          <h1 className="page-title">조건을 저장해두면 새 급매를 가장 먼저 받습니다</h1>
           <p className="page-desc">
             검색은 누구나 가능하지만, 알림 저장은 계정에 연결되어야 실제로 이어서 사용할 수
             있습니다.
@@ -79,7 +79,7 @@ function Alerts() {
         <div className="container alerts-layout">
           <article className="alerts-card">
             <div className="panel-header">
-              <h2>새 알림 만들기</h2>
+              <h2>급매 알림 만들기</h2>
             </div>
 
             {!isAuthenticated && (
