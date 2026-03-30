@@ -7,6 +7,8 @@ import ListingDetail from "./pages/ListingDetail";
 import Alerts from "./pages/Alerts";
 import Sell from "./pages/Sell";
 import Account from "./pages/Account";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 
 function App() {
@@ -22,6 +24,8 @@ function App() {
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/sell" element={<Sell />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>

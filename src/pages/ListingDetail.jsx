@@ -28,7 +28,7 @@ function ListingDetail() {
     event.preventDefault();
 
     if (!isAuthenticated) {
-      navigate("/account");
+      navigate("/login");
       return;
     }
 

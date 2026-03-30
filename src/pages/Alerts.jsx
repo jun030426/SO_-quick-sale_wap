@@ -85,8 +85,8 @@ function Alerts() {
             {!isAuthenticated && (
               <div className="empty-box compact">
                 <h3>로그인 후 저장할 수 있습니다</h3>
-                <p>아래 조건 미리보기는 가능하고, 저장은 계정 페이지에서 로그인 후 이어집니다.</p>
-                <Link to="/account" className="btn btn-primary">
+                <p>아래 조건 미리보기는 가능하고, 저장은 로그인 후 이어서 사용할 수 있습니다.</p>
+                <Link to="/login" className="btn btn-primary">
                   로그인하러 가기
                 </Link>
               </div>

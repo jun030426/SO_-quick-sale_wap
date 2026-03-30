@@ -76,7 +76,7 @@ function Sell() {
               <div className="empty-box compact">
                 <h3>로그인 후 등록할 수 있습니다</h3>
                 <p>실제 저장과 이력 관리는 계정이 필요합니다.</p>
-                <Link to="/account" className="btn btn-primary">
+                <Link to="/login" className="btn btn-primary">
                   로그인하러 가기
                 </Link>
               </div>
