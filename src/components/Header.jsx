@@ -21,11 +21,11 @@ function Header() {
       <div className="container header-inner">
         <Link to="/" className="logo" aria-label="급매 홈으로 이동">
           <span className="logo-mark" aria-hidden="true">
-            급
+            G
           </span>
           <span className="logo-lockup">
             <strong>급매</strong>
-            <span>등록 전에 AI가 검증하는 부동산 플랫폼</span>
+            <span>대한민국 아파트 타임딜 거래소</span>
           </span>
         </Link>
 

@@ -2,7 +2,11 @@ import { startTransition, useDeferredValue, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import ListingCard from "../components/ListingCard";
 import { useMarketplace } from "../context/MarketplaceContext";
-import { matchesListingFilters, sortListings } from "../utils/marketplace";
+import {
+  formatPercent,
+  matchesListingFilters,
+  sortListings,
+} from "../utils/marketplace";
 import "../styles/listings.css";
 
 function parseBoolean(value) {
@@ -71,7 +75,7 @@ function buildSearchParams(filters) {
 }
 
 function Listings() {
-  const { listings, options } = useMarketplace();
+  const { listings, options, stats } = useMarketplace();
   const [searchParams, setSearchParams] = useSearchParams();
   const filters = readFilters(searchParams);
   const deferredKeyword = useDeferredValue(filters.keyword);
@@ -104,16 +108,39 @@ function Listings() {
     });
   };
 
+  const marketSummary = [
+    {
+      label: "AI 인증 매물",
+      value: `${stats.listingsCount}건`,
+    },
+    {
+      label: "평균 할인율",
+      value: formatPercent(stats.averageDiscount),
+    },
+    {
+      label: "현재 검색 결과",
+      value: `${filteredListings.length}건`,
+    },
+  ];
+
   return (
     <div className="page-shell">
-      <section className="page-hero">
+      <section className="page-hero listings-hero">
         <div className="container">
-          <span className="eyebrow">Verified Search</span>
-          <h1 className="page-title">조건에 맞는 검증 매물만 빠르게 찾으세요</h1>
+          <span className="eyebrow">AI 인증 매물</span>
+          <h1 className="page-title">지금 선점할 수 있는 진짜 급매</h1>
           <p className="page-desc">
-            검색은 공개 데이터로 누구나 가능하고, 로그인 후에는 이 조건을 알림으로 저장할 수
-            있습니다.
+            가격 경쟁력, 자료 신뢰도, 거래 전환 가능성을 한 화면에서 보고 판단하도록 구성했습니다.
           </p>
+
+          <div className="market-summary-grid">
+            {marketSummary.map((item) => (
+              <article key={item.label} className="market-summary-card">
+                <strong>{item.value}</strong>
+                <span>{item.label}</span>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -121,7 +148,7 @@ function Listings() {
         <div className="container listings-layout">
           <aside className="filter-panel">
             <div className="panel-header">
-              <h2>검색 필터</h2>
+              <h2>빠른 필터</h2>
               <button type="button" className="text-button" onClick={resetFilters}>
                 초기화
               </button>
@@ -165,7 +192,7 @@ function Listings() {
                 id="filter-keyword"
                 type="text"
                 className="search-input"
-                placeholder="예: 성수, 리모델링, 대출 만기"
+                placeholder="예: 성수, 상속 정리, 영상 현장"
                 value={filters.keyword}
                 onChange={(event) => updateFilters({ keyword: event.target.value })}
               />
@@ -237,7 +264,7 @@ function Listings() {
               <div>
                 <p className="results-count">검색 결과 {filteredListings.length}건</p>
                 <p className="results-copy">
-                  가격 경쟁력, 신뢰 점수, 매도 사유를 함께 보고 판단할 수 있습니다.
+                  AI 급매 지수, 할인율, 상담 연결성을 기준으로 빠르게 정렬해보세요.
                 </p>
               </div>
 
@@ -250,7 +277,7 @@ function Listings() {
                   onChange={(event) => updateFilters({ sort: event.target.value })}
                 >
                   <option value="recommended">추천순</option>
-                  <option value="discount">할인율순</option>
+                  <option value="discount">할인율 높은순</option>
                   <option value="price-low">가격 낮은순</option>
                   <option value="newest">최신 등록순</option>
                 </select>
@@ -266,7 +293,7 @@ function Listings() {
             ) : (
               <div className="empty-box">
                 <h2>조건에 맞는 급매가 아직 없습니다</h2>
-                <p>조건을 조금 완화하거나, 알림 센터에서 저장해두면 새 매물이 뜰 때 바로 볼 수 있습니다.</p>
+                <p>필터를 조금 완화하거나 알림으로 저장해두면 다음 등록분을 더 빨리 포착할 수 있습니다.</p>
               </div>
             )}
           </div>

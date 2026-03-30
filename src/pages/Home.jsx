@@ -2,6 +2,12 @@ import { Link } from "react-router-dom";
 import ListingCard from "../components/ListingCard";
 import SearchBox from "../components/SearchBox";
 import { useMarketplace } from "../context/MarketplaceContext";
+import {
+  formatCompactPrice,
+  formatPercent,
+  getListingDeadline,
+  getListingRankLabel,
+} from "../utils/marketplace";
 import "../styles/home.css";
 
 function Home() {
@@ -14,92 +20,125 @@ function Home() {
     isWritableBackend,
   } = useMarketplace();
 
-  const featuredListings = listings.slice(0, 3);
+  const featuredListings = listings.slice(0, 6);
+  const heroListing = listings[0];
 
   const metrics = [
     {
-      label: "검증 완료 매물",
+      label: "현재 급매 등록",
       value: `${stats.listingsCount}건`,
-      detail: "등록 전 AI 필터 통과",
+      detail: "AI 인증 통과 매물",
+    },
+    {
+      label: "오늘 거래 집중도",
+      value: `${Math.max(3, Math.round(stats.inquiriesCount * 0.35))}건`,
+      detail: "문의 발생 기준",
     },
     {
       label: "평균 할인율",
-      value: `${stats.averageDiscount.toFixed(1)}%`,
-      detail: "최근 3개월 실거래 기준",
+      value: formatPercent(stats.averageDiscount),
+      detail: "최근 3개월 비교",
     },
     {
       label: "저장된 알림",
       value: `${isAuthenticated ? alertProfiles.length : stats.alertsCount}개`,
-      detail: isAuthenticated ? "내 계정 기준 저장 수" : "플랫폼 전체 누적 수",
-    },
-    {
-      label: "누적 문의",
-      value: `${stats.inquiriesCount}건`,
-      detail: "파트너 중개사 연결 요청",
+      detail: isAuthenticated ? "내 계정 기준" : "플랫폼 전체",
     },
   ];
 
-  const problems = [
+  const features = [
     {
-      title: "가짜 급매가 너무 많습니다",
-      body: "광고비 기반 플랫폼은 매물 수를 늘리는 데 유리하지만, 급매의 진짜 여부를 검증할 이유가 약합니다. 그래서 실수요자는 수많은 매물 속에서 다시 발품을 팔게 됩니다.",
+      title: "시세를 데이터로 증명합니다",
+      body: "최근 실거래 평균과 현재 등록 평균을 교차 비교해 시세 대비 5% 이상 저렴한 매물만 상단에 노출합니다.",
+      stats: ["AI 급매 지수 산정", "동일 생활권 비교", "허위 급매 필터"],
     },
     {
-      title: "검증 비용이 사람마다 다릅니다",
-      body: "정보력이 있는 사람은 네트워크와 시간을 써서 좋은 매물을 먼저 잡지만, 첫 구매자와 맞벌이 부부는 같은 기회를 갖기 어렵습니다.",
+      title: "거실에서 임장의 절반을 끝냅니다",
+      body: "영상 현장 자료와 체크포인트를 함께 보여줘 탐색 피로를 줄이고, 상담 전 판단 속도를 높입니다.",
+      stats: ["영상 현장 확인", "리포트 제공", "파트너 중개사 연결"],
     },
     {
-      title: "사후 단속만으로는 느립니다",
-      body: "허위매물은 등록되고 난 뒤 신고와 조사를 거치기 때문에 느립니다. 급매는 등록 전에 기준을 통과해야 공개되는 구조로 접근합니다.",
+      title: "관심 조건을 먼저 붙잡습니다",
+      body: "지역, 예산, 면적, 할인율을 저장하면 새 매물이 등장하는 순간 같은 조건의 사용자보다 먼저 반응할 수 있습니다.",
+      stats: ["조건 알림 저장", "새 급매 즉시 포착", "매물별 문의 이력 유지"],
     },
   ];
 
-  const flow = [
+  const roleCards = [
     {
-      step: "01",
-      title: "매도인 또는 파트너 중개사 등록",
-      body: "매도 사유, 가격, 면적, 설명을 입력하면 즉시 심사가 시작됩니다.",
+      role: "매수인",
+      headline: "광고성 급매가 아니라 진짜 가격 메리트만 보세요",
+      bullets: [
+        "급매 지수와 할인율로 빠르게 판단",
+        "영상 현장과 파트너 상담으로 검증",
+        "관심 조건 저장 후 새 매물 선점",
+      ],
     },
     {
-      step: "02",
-      title: "AI 가격 검증",
-      body: "최근 3개월 실거래 평균과 현재 등록 평균을 교차 비교해 5% 이상 저렴한 매물만 공개합니다.",
+      role: "매도인",
+      headline: "할인 근거를 데이터로 제시하고 빠르게 현금화하세요",
+      bullets: [
+        "매도 등록 즉시 심사",
+        "조건 맞는 실수요자에게 우선 노출",
+        "보완 포인트까지 기록으로 확인",
+      ],
     },
     {
-      step: "03",
-      title: "조건 맞춤 알림",
-      body: "사용자 계정에 저장된 지역, 가격, 면적, 유형 조건과 맞으면 바로 노출됩니다.",
+      role: "파트너 중개사",
+      headline: "광고비보다 전환율에 집중하는 매칭 구조",
+      bullets: [
+        "실제 문의가 붙은 급매에 집중",
+        "관리자 화면에서 최근 흐름 확인",
+        "신뢰 자료가 많은 매물 우선 대응",
+      ],
+    },
+  ];
+
+  const comparisonRows = [
+    {
+      label: "정보의 성격",
+      legacy: "광고성 매물의 단순 나열",
+      geupmae: "AI 검증을 통과한 타임딜형 급매만 노출",
     },
     {
-      step: "04",
-      title: "파트너 중개사 연결",
-      body: "매물 문의가 들어오면 파트너 중개사와 연결되어 실제 거래 상담으로 이어집니다.",
+      label: "핵심 가치",
+      legacy: "비교와 탐색 중심",
+      geupmae: "즉각적인 거래 판단과 선점",
+    },
+    {
+      label: "거래 속도",
+      legacy: "사용자 개별 연락과 수동 검증",
+      geupmae: "조건 알림과 파트너 연결 중심",
+    },
+    {
+      label: "신뢰 검증",
+      legacy: "텍스트와 사진 의존",
+      geupmae: "가격 데이터와 현장 자료 중심",
     },
   ];
 
   return (
     <div className="home-page">
       <section className="hero">
-        <div className="container hero-grid">
+        <div className="container hero-shell">
           <div className="hero-copy-block">
-            <span className="eyebrow">실사용형 부동산 급매 서비스</span>
+            <span className="hero-live">LIVE · AI 급매 지수 산정 중</span>
             <h1 className="hero-title">
-              등록 전에 AI가 걸러내는
+              진짜 아파트 급매만
               <br />
-              진짜 급매 플랫폼
+              모았습니다
             </h1>
             <p className="hero-description">
-              이제 이 사이트는 단순 소개 화면이 아니라 실제 계정, 실제 저장, 실제 문의가 가능한
-              서비스 구조로 바뀌었습니다. 실수요자는 조건을 저장하고, 매도인은 등록 심사를 받고,
-              운영자는 대시보드에서 흐름을 확인할 수 있습니다.
+              시세 대비 의미 있게 저렴한 매물만 골라 보여주는 타임딜형 거래소입니다. 검증 근거,
+              알림, 문의, 매도 등록이 한 흐름으로 연결됩니다.
             </p>
 
             <div className="hero-actions">
-              <Link to="/listings" className="btn btn-primary">
-                검증 매물 보기
+              <Link to="/alerts" className="btn btn-primary">
+                급매 알림 설정
               </Link>
-              <Link to="/account" className="btn btn-outline">
-                계정 만들기
+              <Link to="/listings" className="btn btn-outline">
+                아파트 둘러보기
               </Link>
             </div>
 
@@ -116,83 +155,75 @@ function Home() {
 
           <div className="hero-panel">
             <div className="hero-panel-copy">
-              <p className="panel-kicker">실시간 탐색</p>
-              <h2>조건만 넣으면 검증된 매물만 골라드립니다</h2>
-              <p>
-                검색은 누구나 할 수 있고, 로그인 후에는 알림 저장과 문의, 매도 등록까지 이어집니다.
-              </p>
+              <p className="panel-kicker">급매 검색</p>
+              <h2>관심 지역과 예산을 넣으면 검증된 매물만 좁혀집니다</h2>
+              <p>앱 같은 탐색 경험 대신, 거래에 가까운 매물만 빠르게 걸러냅니다.</p>
             </div>
 
             <SearchBox />
 
             <div className="hero-status-list">
               <div>
-                <strong>검증 기준</strong>
-                <span>실거래 평균 대비 5% 이상 할인</span>
-              </div>
-              <div>
-                <strong>데이터 저장</strong>
+                <strong>데이터 계층</strong>
                 <span>{backendLabel}</span>
               </div>
               <div>
-                <strong>운영 관리</strong>
-                <span>관리자 대시보드 제공</span>
+                <strong>노출 기준</strong>
+                <span>시세 대비 최소 5% 이상</span>
+              </div>
+              <div>
+                <strong>상담 연결</strong>
+                <span>파트너 중개사 매칭</span>
               </div>
             </div>
 
             {!isWritableBackend && (
               <p className="helper-copy">
-                이 미리보기 빌드는 읽기 전용입니다. 실제 회원가입과 저장은 Supabase 환경변수가
-                연결된 배포본에서 동작합니다.
+                현재 미리보기 빌드에서는 저장이 제한될 수 있습니다. 실배포에서는 Supabase 연결 후
+                회원가입과 문의가 실제로 유지됩니다.
               </p>
             )}
           </div>
         </div>
       </section>
 
-      <section className="home-section">
-        <div className="container">
-          <div className="section-heading">
-            <span className="eyebrow">Problem</span>
-            <h2>왜 여전히 진짜 급매는 찾기 어려운가</h2>
-          </div>
+      {heroListing && (
+        <section className="home-section marquee-section">
+          <div className="container">
+            <article className="marquee-card">
+              <div className="marquee-labels">
+                <span className="pill accent">타임딜 {getListingDeadline(heroListing)}</span>
+                <span className="pill">AI 인증</span>
+              </div>
 
-          <div className="problem-grid">
-            {problems.map((problem) => (
-              <article key={problem.title} className="story-card">
-                <h3>{problem.title}</h3>
-                <p>{problem.body}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+              <div className="marquee-copy">
+                <div>
+                  <p className="comparison-label">오늘 가장 반응이 빠른 매물</p>
+                  <h2>{heroListing.title}</h2>
+                  <p>
+                    {heroListing.location} · {heroListing.area} · {heroListing.floor}
+                  </p>
+                </div>
 
-      <section className="home-section flow-section">
-        <div className="container">
-          <div className="section-heading">
-            <span className="eyebrow">Flow</span>
-            <h2>서비스는 이렇게 작동합니다</h2>
+                <div className="marquee-price">
+                  <strong>{formatCompactPrice(heroListing.price)}</strong>
+                  <span>
+                    {getListingRankLabel(heroListing)} · 시세 대비{" "}
+                    {formatPercent(heroListing.discountRate)}
+                  </span>
+                </div>
+              </div>
+            </article>
           </div>
-
-          <div className="flow-grid">
-            {flow.map((item) => (
-              <article key={item.step} className="flow-card">
-                <span>{item.step}</span>
-                <h3>{item.title}</h3>
-                <p>{item.body}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="home-section">
         <div className="container">
           <div className="section-heading">
-            <span className="eyebrow">Verified Listings</span>
-            <h2>지금 바로 확인할 수 있는 매물</h2>
-            <p>기본 시드 데이터와 승인된 사용자 등록 매물이 함께 노출됩니다.</p>
+            <span className="eyebrow">AI 인증 급매</span>
+            <h2>지금 바로 선점할 수 있는 진짜 아파트 급매</h2>
+            <p>가격, 신뢰 자료, 상담 전환 가능성을 한 카드 안에서 바로 판단할 수 있게 구성했습니다.</p>
           </div>
 
           <div className="listing-grid">
@@ -203,12 +234,78 @@ function Home() {
         </div>
       </section>
 
+      <section className="home-section feature-section">
+        <div className="container">
+          <div className="section-heading">
+            <span className="eyebrow">핵심 기능</span>
+            <h2>신뢰와 속도를 담보하는 3대 기능</h2>
+          </div>
+
+          <div className="feature-grid">
+            {features.map((feature) => (
+              <article key={feature.title} className="feature-card">
+                <h3>{feature.title}</h3>
+                <p>{feature.body}</p>
+                <ul className="plain-list">
+                  {feature.stats.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="home-section role-section">
+        <div className="container">
+          <div className="section-heading">
+            <span className="eyebrow">이해관계자별 가치</span>
+            <h2>당신의 역할에 맞는 급매 전략</h2>
+          </div>
+
+          <div className="role-grid">
+            {roleCards.map((card) => (
+              <article key={card.role} className="role-card">
+                <span>{card.role}</span>
+                <h3>{card.headline}</h3>
+                <ul className="plain-list">
+                  {card.bullets.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="home-section comparison-section">
+        <div className="container comparison-shell">
+          <div className="section-heading">
+            <span className="eyebrow">서비스 비교</span>
+            <h2>기존 탐색형 앱과 급매의 차이</h2>
+            <p>정보의 양보다 거래 성사 가능성과 가격 경쟁력 선점에 초점을 맞췄습니다.</p>
+          </div>
+
+          <div className="comparison-table-shell">
+            {comparisonRows.map((row) => (
+              <div key={row.label} className="comparison-row">
+                <strong>{row.label}</strong>
+                <span>{row.legacy}</span>
+                <span className="accent">{row.geupmae}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="home-section">
         <div className="container dual-cta">
           <article className="cta-card">
             <span className="eyebrow">For Buyers</span>
-            <h2>조건 알림과 문의를 계정에 저장하세요</h2>
-            <p>이제 알림과 문의 기록이 계정 단위로 저장되어 다른 브라우저에서도 이어집니다.</p>
+            <h2>관심 단지와 예산을 저장해두세요</h2>
+            <p>새 급매가 올라오는 순간 가장 먼저 반응할 수 있도록 조건 알림을 계정에 저장합니다.</p>
             <Link to="/alerts" className="btn btn-dark">
               알림 센터 가기
             </Link>
@@ -216,10 +313,8 @@ function Home() {
 
           <article className="cta-card accent">
             <span className="eyebrow">For Sellers</span>
-            <h2>매도 등록 후 즉시 심사 결과를 확인하세요</h2>
-            <p>
-              승인되면 바로 매물에 반영되고, 미달이면 어떤 점을 보완해야 하는지 기록으로 남습니다.
-            </p>
+            <h2>가격 근거를 통과한 매물만 빠르게 노출됩니다</h2>
+            <p>등록 즉시 심사하고, 승인되면 바로 매물 목록과 관리자 흐름에 반영됩니다.</p>
             <Link to="/sell" className="btn btn-primary">
               매도 등록 시작
             </Link>

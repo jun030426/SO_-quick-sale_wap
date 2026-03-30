@@ -1,5 +1,5 @@
 .detail-page {
-  padding: 40px 0 88px;
+  padding: 42px 0 88px;
 }
 
 .breadcrumb {
@@ -13,7 +13,7 @@
 
 .detail-hero {
   display: grid;
-  grid-template-columns: 1fr 0.92fr;
+  grid-template-columns: 1fr 0.96fr;
   gap: 26px;
   margin-bottom: 28px;
 }
@@ -23,14 +23,14 @@
 .detail-card {
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
-  background: rgba(255, 255, 255, 0.72);
+  background: linear-gradient(180deg, rgba(20, 25, 35, 0.96), rgba(10, 12, 18, 0.98));
   box-shadow: var(--shadow-md);
 }
 
 .detail-visual {
   position: relative;
   overflow: hidden;
-  min-height: 460px;
+  min-height: 520px;
 }
 
 .detail-image {
@@ -39,13 +39,22 @@
   object-fit: cover;
 }
 
+.detail-visual::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(5, 7, 10, 0.08), rgba(8, 9, 13, 0.86));
+  content: "";
+}
+
 .detail-visual-chip {
   position: absolute;
   left: 20px;
   bottom: 20px;
+  z-index: 1;
   padding: 16px 18px;
+  border: 1px solid rgba(213, 170, 100, 0.2);
   border-radius: 18px;
-  background: rgba(255, 250, 243, 0.9);
+  background: rgba(8, 9, 13, 0.72);
   box-shadow: var(--shadow-md);
 }
 
@@ -55,7 +64,7 @@
 }
 
 .detail-summary {
-  padding: 28px;
+  padding: 30px;
 }
 
 .detail-badges {
@@ -67,8 +76,8 @@
 
 .detail-summary h1 {
   margin: 0 0 10px;
-  font-size: 38px;
-  line-height: 1.18;
+  font-size: 44px;
+  line-height: 1.04;
 }
 
 .summary-location {
@@ -79,7 +88,7 @@
 .summary-price {
   margin: 0 0 6px;
   color: var(--accent-strong);
-  font-size: 40px;
+  font-size: 44px;
   font-weight: 900;
 }
 
@@ -98,14 +107,15 @@
 
 .score-grid article {
   padding: 18px;
-  border-radius: 18px;
-  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
   text-align: center;
 }
 
 .score-grid strong {
   display: block;
-  font-size: 28px;
+  font-size: 30px;
 }
 
 .score-grid span {
@@ -124,9 +134,10 @@
 .match-box {
   margin-top: 18px;
   padding: 18px;
+  border: 1px solid rgba(213, 170, 100, 0.18);
   border-radius: 18px;
-  background: rgba(23, 133, 109, 0.1);
-  color: #0d5a49;
+  background: rgba(213, 170, 100, 0.08);
+  color: var(--ink);
 }
 
 .match-box strong {
@@ -177,8 +188,9 @@
 
 .comparison-table div {
   padding: 18px;
+  border: 1px solid var(--line);
   border-radius: 18px;
-  background: var(--surface-soft);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .comparison-table span {
@@ -207,7 +219,7 @@
   margin-top: 32px;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   .detail-hero,
   .detail-grid,
   .score-grid,
@@ -228,11 +240,11 @@
   }
 
   .detail-summary h1 {
-    font-size: 30px;
+    font-size: 34px;
   }
 
   .summary-price {
-    font-size: 34px;
+    font-size: 38px;
   }
 
   .detail-actions {
@@ -240,6 +252,6 @@
   }
 
   .detail-visual {
-    min-height: 320px;
+    min-height: 340px;
   }
 }

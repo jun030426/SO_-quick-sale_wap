@@ -60,8 +60,23 @@ export function formatPrice(value) {
   return `${amount.toLocaleString("ko-KR")}만 원`;
 }
 
+export function formatCompactPrice(value) {
+  const amount = toNumber(value);
+
+  if (amount >= MAN_PER_EOK) {
+    const eokValue = amount / MAN_PER_EOK;
+    return `${Number(eokValue.toFixed(2)).toLocaleString("ko-KR")}억원`;
+  }
+
+  return `${Math.round(amount).toLocaleString("ko-KR")}만`;
+}
+
 export function formatPercent(value) {
   return `${toNumber(value).toFixed(1)}%`;
+}
+
+export function formatCount(value) {
+  return Math.round(toNumber(value)).toLocaleString("ko-KR");
 }
 
 export function formatDate(isoString) {
@@ -263,6 +278,36 @@ export function sortListings(listings, sortKey) {
 
 export function createAlertMatchList(listings, alert) {
   return listings.filter((listing) => matchesListingFilters(listing, alert));
+}
+
+export function getListingDeadline(listing) {
+  const createdAt = new Date(listing.createdAt).getTime();
+  const elapsedDays = Number.isFinite(createdAt)
+    ? Math.max(0, Math.floor((Date.now() - createdAt) / (1000 * 60 * 60 * 24)))
+    : 0;
+
+  return `D-${clamp(7 - elapsedDays, 1, 7)}`;
+}
+
+export function getListingEngagement(listing) {
+  const views = Math.round(
+    listing.score * 10 + listing.trustScore * 6 + listing.discountRate * 48,
+  );
+  const likes = Math.max(12, Math.round(views * 0.068));
+
+  return {
+    views,
+    likes,
+  };
+}
+
+export function getListingRankLabel(listing) {
+  const rank = clamp(Math.round((100 - listing.score) / 1.55), 4, 18);
+  return `상위 ${rank}%`;
+}
+
+export function getListingSavings(listing) {
+  return Math.max(0, toNumber(listing.marketPrice) - toNumber(listing.price));
 }
 
 export function evaluateListingDraft(draft) {
