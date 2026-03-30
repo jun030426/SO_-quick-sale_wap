@@ -1,112 +1,115 @@
 .detail-page {
-  padding: 40px 0 72px;
+  padding: 40px 0 88px;
 }
 
 .breadcrumb {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 24px;
-  color: var(--text-muted);
+  margin-bottom: 22px;
+  color: var(--ink-muted);
   font-size: 14px;
 }
 
-.breadcrumb a:hover {
-  color: var(--accent-strong);
-}
-
-.detail-top {
+.detail-hero {
   display: grid;
-  grid-template-columns: 1fr 0.95fr;
-  gap: 28px;
-  margin-bottom: 32px;
+  grid-template-columns: 1fr 0.92fr;
+  gap: 26px;
+  margin-bottom: 28px;
 }
 
-.detail-image-wrap {
+.detail-visual,
+.detail-summary,
+.detail-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow-md);
+}
+
+.detail-visual {
+  position: relative;
   overflow: hidden;
-  border: 1px solid var(--border-soft);
-  border-radius: 28px;
-  background-color: var(--surface-strong);
-  box-shadow: var(--shadow-lg);
+  min-height: 460px;
 }
 
 .detail-image {
   width: 100%;
   height: 100%;
-  min-height: 420px;
   object-fit: cover;
+}
+
+.detail-visual-chip {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(255, 250, 243, 0.9);
+  box-shadow: var(--shadow-md);
+}
+
+.detail-visual-chip strong,
+.summary-price {
+  display: block;
 }
 
 .detail-summary {
   padding: 28px;
-  border: 1px solid var(--border-soft);
-  border-radius: 28px;
-  background: linear-gradient(180deg, rgba(24, 34, 58, 0.96), rgba(14, 20, 37, 0.96));
-  box-shadow: var(--shadow-lg);
 }
 
-.detail-badge {
-  display: inline-block;
-  margin-bottom: 14px;
-  padding: 8px 12px;
-  border: 1px solid rgba(255, 154, 131, 0.26);
-  border-radius: 999px;
-  background-color: rgba(244, 125, 107, 0.12);
-  color: var(--accent-strong);
-  font-size: 13px;
-  font-weight: 700;
+.detail-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
-.detail-title {
+.detail-summary h1 {
   margin: 0 0 10px;
-  color: var(--text-primary);
-  font-size: 34px;
-  line-height: 1.3;
-}
-
-.detail-location {
-  margin: 0 0 16px;
-  color: var(--text-muted);
-}
-
-.detail-price {
-  margin: 0 0 8px;
-  color: var(--accent-strong);
   font-size: 38px;
-  font-weight: 800;
+  line-height: 1.18;
 }
 
-.detail-sub-price {
+.summary-location {
+  margin: 0 0 18px;
+  color: var(--ink-muted);
+}
+
+.summary-price {
+  margin: 0 0 6px;
+  color: var(--accent-strong);
+  font-size: 40px;
+  font-weight: 900;
+}
+
+.summary-subline {
   margin: 0;
   color: var(--success);
   font-weight: 700;
 }
 
-.detail-score-box {
+.score-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
   margin: 24px 0;
 }
 
-.score-card {
+.score-grid article {
   padding: 18px;
-  border: 1px solid var(--border-soft);
-  border-radius: 20px;
-  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 18px;
+  background: var(--surface-soft);
   text-align: center;
 }
 
-.score-card strong {
+.score-grid strong {
   display: block;
-  margin-bottom: 6px;
-  color: var(--text-primary);
-  font-size: 24px;
+  font-size: 28px;
 }
 
-.score-card span {
-  color: var(--text-muted);
-  font-size: 14px;
+.score-grid span {
+  color: var(--ink-muted);
 }
 
 .detail-actions {
@@ -118,84 +121,125 @@
   flex: 1;
 }
 
-.detail-content-grid {
+.match-box {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(23, 133, 109, 0.1);
+  color: #0d5a49;
+}
+
+.match-box strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.match-box p {
+  margin: 0;
+}
+
+.detail-inquiry-form {
+  display: grid;
+  gap: 14px;
+}
+
+.detail-feedback {
+  margin: 14px 0 0;
+  color: var(--success);
+  font-weight: 700;
+}
+
+.detail-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
+  gap: 20px;
 }
 
-.detail-section {
-  padding: 26px;
-  border: 1px solid var(--border-soft);
-  border-radius: 24px;
-  background: linear-gradient(180deg, rgba(21, 30, 51, 0.94), rgba(12, 18, 32, 0.96));
-  box-shadow: var(--shadow-md);
+.detail-card {
+  padding: 24px;
 }
 
-.detail-section h2 {
+.detail-card h2,
+.detail-card h3 {
   margin-top: 0;
-  margin-bottom: 14px;
-  color: var(--text-primary);
-  font-size: 24px;
 }
 
-.detail-section p {
-  margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.8;
+.detail-card-wide {
+  grid-column: span 2;
 }
 
-.info-list,
-.point-list {
-  margin: 0;
-  padding-left: 20px;
-  color: var(--text-secondary);
-  line-height: 2;
+.comparison-table {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
-.info-list li {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border-soft);
-  list-style: none;
+.comparison-table div {
+  padding: 18px;
+  border-radius: 18px;
+  background: var(--surface-soft);
 }
 
-.info-list li:last-child {
-  border-bottom: none;
+.comparison-table span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ink-muted);
+  font-size: 14px;
 }
 
-.info-list span {
-  color: var(--text-muted);
+.comparison-table strong {
+  font-size: 22px;
 }
 
-.point-list li::marker {
-  color: var(--accent-strong);
+.broker-name {
+  font-weight: 800;
+}
+
+.detail-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.related-section {
+  margin-top: 32px;
 }
 
 @media (max-width: 1024px) {
-  .detail-top,
-  .detail-content-grid,
-  .detail-score-box {
+  .detail-hero,
+  .detail-grid,
+  .score-grid,
+  .comparison-table,
+  .detail-columns {
     grid-template-columns: 1fr;
+  }
+
+  .detail-card-wide {
+    grid-column: auto;
   }
 }
 
 @media (max-width: 768px) {
-  .detail-title {
-    font-size: 28px;
+  .detail-summary,
+  .detail-card {
+    padding: 20px;
   }
 
-  .detail-price {
+  .detail-summary h1 {
     font-size: 30px;
+  }
+
+  .summary-price {
+    font-size: 34px;
   }
 
   .detail-actions {
     flex-direction: column;
   }
 
-  .detail-image {
-    min-height: 280px;
+  .detail-visual {
+    min-height: 320px;
   }
 }

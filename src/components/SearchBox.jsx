@@ -1,23 +1,32 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useMarketplace } from "../context/MarketplaceContext";
 
 function SearchBox() {
   const navigate = useNavigate();
-  const [region, setRegion] = useState("전체");
+  const { options } = useMarketplace();
+  const [district, setDistrict] = useState("전체");
+  const [type, setType] = useState("전체");
   const [keyword, setKeyword] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
     const params = new URLSearchParams();
 
-    if (region) {
-      params.set("region", region);
+    if (district && district !== "전체") {
+      params.set("district", district);
+    }
+
+    if (type && type !== "전체") {
+      params.set("type", type);
     }
 
     if (keyword.trim()) {
       params.set("keyword", keyword.trim());
     }
+
+    params.set("approvedOnly", "true");
 
     navigate(`/listings?${params.toString()}`);
   };
@@ -25,29 +34,54 @@ function SearchBox() {
   return (
     <form className="search-box" onSubmit={handleSubmit}>
       <div className="search-row">
-        <select
-          className="search-input"
-          value={region}
-          onChange={(e) => setRegion(e.target.value)}
-        >
-          <option value="전체">전체 지역</option>
-          <option value="서울">서울</option>
-          <option value="경기">경기</option>
-          <option value="인천">인천</option>
-        </select>
+        <div className="field">
+          <label htmlFor="hero-district">지역</label>
+          <select
+            id="hero-district"
+            className="search-input"
+            value={district}
+            onChange={(event) => setDistrict(event.target.value)}
+          >
+            {options.districtOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </div>
 
+        <div className="field">
+          <label htmlFor="hero-type">유형</label>
+          <select
+            id="hero-type"
+            className="search-input"
+            value={type}
+            onChange={(event) => setType(event.target.value)}
+          >
+            {options.propertyTypes.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="field">
+        <label htmlFor="hero-keyword">키워드</label>
         <input
+          id="hero-keyword"
           type="text"
           className="search-input"
-          placeholder="예: 마포구, 84㎡, 신축"
+          placeholder="예: 공덕 84㎡, 성수 리모델링"
           value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
+          onChange={(event) => setKeyword(event.target.value)}
         />
-
-        <button type="submit" className="btn btn-primary">
-          급매 찾기
-        </button>
       </div>
+
+      <button type="submit" className="btn btn-primary search-submit">
+        AI 검증 매물 찾기
+      </button>
     </form>
   );
 }

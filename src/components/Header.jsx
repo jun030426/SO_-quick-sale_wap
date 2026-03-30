@@ -1,31 +1,64 @@
 import { Link, NavLink } from "react-router-dom";
+import { useMarketplace } from "../context/MarketplaceContext";
 
 function Header() {
+  const { user, isAdmin, isAuthenticated, logout } = useMarketplace();
+
+  const navItems = [
+    { to: "/", label: "홈" },
+    { to: "/listings", label: "검증 매물" },
+    { to: "/alerts", label: "알림 센터" },
+    { to: "/sell", label: "매도 등록" },
+    { to: "/account", label: isAuthenticated ? "내 계정" : "로그인" },
+  ];
+
+  if (isAdmin) {
+    navItems.splice(4, 0, { to: "/admin", label: "운영 대시보드" });
+  }
+
   return (
     <header className="site-header">
       <div className="container header-inner">
-        <Link to="/" className="logo">
-          <span className="logo-icon" aria-hidden="true"></span>
+        <Link to="/" className="logo" aria-label="급매 홈으로 이동">
+          <span className="logo-mark" aria-hidden="true">
+            급
+          </span>
+          <span className="logo-lockup">
+            <strong>급매</strong>
+            <span>등록 전에 AI가 검증하는 부동산 플랫폼</span>
+          </span>
         </Link>
 
-        <nav className="nav">
-          <NavLink to="/" className="nav-link">
-            홈
-          </NavLink>
-          <NavLink to="/listings" className="nav-link">
-            급매 매물
-          </NavLink>
+        <nav className="nav" aria-label="주요 메뉴">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
+            >
+              {item.label}
+            </NavLink>
+          ))}
         </nav>
 
-        <div className="stamp-wrap">
-          <div className="stamp" aria-label="급매 스탬프">
-            급매
-          </div>
-        </div>
-
         <div className="header-actions">
-          <button className="btn btn-outline">로그인</button>
-          <button className="btn btn-primary">알림 설정</button>
+          {isAuthenticated ? (
+            <>
+              <span className="header-user">{user.name}</span>
+              <button type="button" className="btn btn-outline" onClick={logout}>
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/account" className="btn btn-outline">
+                로그인
+              </Link>
+              <Link to="/account" className="btn btn-primary">
+                회원가입
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

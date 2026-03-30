@@ -1,0 +1,79 @@
+.account-layout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.account-card {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow-md);
+}
+
+.account-form,
+.demo-account-list,
+.history-list {
+  display: grid;
+  gap: 16px;
+}
+
+.profile-block {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.profile-block strong {
+  font-size: 24px;
+}
+
+.profile-block span {
+  color: var(--ink-soft);
+}
+
+.account-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.demo-account-item,
+.history-item {
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: var(--surface-soft);
+}
+
+.demo-account-item strong,
+.history-item strong {
+  display: block;
+}
+
+.demo-account-item span,
+.history-item span {
+  display: block;
+  color: var(--ink-muted);
+  font-size: 14px;
+}
+
+.history-item p {
+  margin: 10px 0 0;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 1024px) {
+  .account-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .account-card {
+    padding: 18px;
+  }
+
+  .account-actions {
+    flex-direction: column;
+  }
+}
