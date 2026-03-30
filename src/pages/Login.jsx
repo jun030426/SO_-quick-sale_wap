@@ -22,7 +22,7 @@ function Login() {
   const [feedback, setFeedback] = useState("");
 
   if (isAuthenticated) {
-    return <Navigate to="/account" replace />;
+    return <Navigate to="/" replace />;
   }
 
   const handleSubmit = async (event) => {
