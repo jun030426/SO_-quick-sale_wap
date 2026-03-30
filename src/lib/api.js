@@ -317,7 +317,7 @@ function mapInquiryRow(row) {
   return {
     id: row.id,
     listingId: row.listingId ?? row.listing_id,
-    listingTitle: row.listingTitle ?? listing.title ?? "검증 매물",
+    listingTitle: row.listingTitle ?? listing.title ?? "급매 매물",
     listingLocation: row.listingLocation ?? listing.location ?? "",
     message: row.message,
     status: row.status,

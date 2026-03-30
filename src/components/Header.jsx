@@ -2,7 +2,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useMarketplace } from "../context/MarketplaceContext";
 
 function Header() {
-  const { user, isAdmin, isAuthenticated, logout } = useMarketplace();
+  const { user, isAdmin, isAuthenticated } = useMarketplace();
 
   const navItems = [
     { to: "/", label: "홈" },
@@ -21,11 +21,11 @@ function Header() {
       <div className="container header-inner">
         <Link to="/" className="logo" aria-label="급매 홈으로 이동">
           <span className="logo-mark" aria-hidden="true">
-            G
+            급매
           </span>
           <span className="logo-lockup">
-            <strong>급매</strong>
-            <span>대한민국 아파트 타임딜 거래소</span>
+            <strong>대한민국 아파트 타임딜 거래소</strong>
+            <span>AI가 검증한 진짜 급매만 빠르게 연결합니다</span>
           </span>
         </Link>
 
@@ -42,23 +42,14 @@ function Header() {
         </nav>
 
         <div className="header-actions">
-          {isAuthenticated ? (
-            <>
-              <span className="header-user">{user.name}</span>
-              <button type="button" className="btn btn-outline" onClick={logout}>
-                로그아웃
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/account" className="btn btn-outline">
-                로그인
-              </Link>
-              <Link to="/account" className="btn btn-primary">
-                회원가입
-              </Link>
-            </>
+          {isAuthenticated && (
+            <Link to="/account" className="header-user">
+              {user.name}님
+            </Link>
           )}
+          <Link to="/alerts" className="btn btn-primary header-cta">
+            급매 알림 신청
+          </Link>
         </div>
       </div>
     </header>

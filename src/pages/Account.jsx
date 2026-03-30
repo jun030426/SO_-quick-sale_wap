@@ -29,6 +29,7 @@ function Account() {
     isAuthLoading,
     login,
     register,
+    logout,
   } = useMarketplace();
   const [loginForm, setLoginForm] = useState(loginInitial);
   const [registerForm, setRegisterForm] = useState(registerInitial);
@@ -68,7 +69,7 @@ function Account() {
     <div className="page-shell">
       <section className="page-hero">
         <div className="container">
-          <span className="eyebrow">Account</span>
+          <span className="eyebrow">내 계정</span>
           <h1 className="page-title">계정으로 저장하고, 문의하고, 다시 돌아오세요</h1>
           <p className="page-desc">
             이제 알림, 매도 등록, 문의 기록이 브라우저 임시 상태가 아니라 계정 단위로 유지됩니다.
@@ -97,6 +98,9 @@ function Account() {
                   <Link to="/sell" className="btn btn-primary">
                     매도 등록하기
                   </Link>
+                  <button type="button" className="btn btn-outline" onClick={logout}>
+                    로그아웃
+                  </button>
                 </div>
               </article>
 

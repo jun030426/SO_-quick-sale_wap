@@ -13,12 +13,13 @@
   padding: 18px 20px;
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-strong);
+  box-shadow: var(--shadow-md);
 }
 
 .market-summary-card strong {
   display: block;
-  color: var(--accent-strong);
+  color: var(--ink-strong);
   font-size: 30px;
 }
 
@@ -40,7 +41,7 @@
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, rgba(20, 25, 35, 0.96), rgba(10, 12, 18, 0.98));
+  background: var(--surface-strong);
   box-shadow: var(--shadow-md);
 }
 
@@ -102,6 +103,9 @@
   align-self: start;
   position: sticky;
   top: 102px;
+  background:
+    linear-gradient(180deg, rgba(16, 44, 73, 0.02), rgba(16, 44, 73, 0.02)),
+    var(--surface-strong);
 }
 
 .map-stage-head {
@@ -128,7 +132,7 @@
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-soft);
   color: inherit;
   text-align: left;
   cursor: pointer;
@@ -140,10 +144,11 @@
 
 .district-hotspot:hover {
   transform: translateY(-2px);
-  border-color: rgba(213, 170, 100, 0.24);
+  border-color: rgba(255, 100, 31, 0.24);
 }
 
 .district-hotspot strong {
+  color: var(--ink-strong);
   font-size: 22px;
 }
 
@@ -159,15 +164,15 @@
 }
 
 .district-hotspot.active {
-  border-color: rgba(213, 170, 100, 0.26);
-  background: rgba(213, 170, 100, 0.1);
+  border-color: rgba(255, 100, 31, 0.24);
+  background: rgba(255, 100, 31, 0.08);
 }
 
 .map-stage-note {
   padding: 16px 18px;
   border: 1px solid var(--line);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-soft);
 }
 
 .map-stage-note p {
@@ -188,6 +193,7 @@
 
 .results-count {
   margin: 0 0 6px;
+  color: var(--ink-strong);
   font-size: 28px;
   font-weight: 800;
 }
@@ -204,10 +210,11 @@
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-soft);
 }
 
 .spotlight-card strong {
+  color: var(--ink-strong);
   font-size: 22px;
 }
 

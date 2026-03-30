@@ -57,7 +57,7 @@ function Sell() {
     <div className="page-shell">
       <section className="page-hero">
         <div className="container">
-          <span className="eyebrow">Seller Intake</span>
+          <span className="eyebrow">매도 등록</span>
           <h1 className="page-title">매도 등록 단계에서 바로 급매 여부를 심사합니다</h1>
           <p className="page-desc">
             로그인한 사용자는 등록 심사 결과와 승인 이력을 계정에 남길 수 있습니다.

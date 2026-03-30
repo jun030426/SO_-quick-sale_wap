@@ -8,7 +8,7 @@
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, rgba(20, 25, 35, 0.96), rgba(10, 12, 18, 0.98));
+  background: var(--surface-strong);
   box-shadow: var(--shadow-md);
 }
 
@@ -43,7 +43,7 @@
   padding: 16px 18px;
   border-radius: 18px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-soft);
 }
 
 .demo-account-item strong,

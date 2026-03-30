@@ -42,7 +42,7 @@ function Admin() {
     <div className="page-shell">
       <section className="page-hero">
         <div className="container">
-          <span className="eyebrow">Admin</span>
+          <span className="eyebrow">운영</span>
           <h1 className="page-title">운영 대시보드</h1>
           <p className="page-desc">
             등록 심사와 사용자 문의를 한 화면에서 확인할 수 있는 운영용 페이지입니다.

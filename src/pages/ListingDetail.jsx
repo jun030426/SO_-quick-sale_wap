@@ -51,7 +51,7 @@ function ListingDetail() {
           <h2>매물을 찾을 수 없습니다</h2>
           <p>삭제되었거나 아직 공개되지 않은 매물일 수 있습니다.</p>
           <Link to="/listings" className="btn btn-primary">
-            검증 매물로 돌아가기
+            급매 지도로 돌아가기
           </Link>
         </div>
       </div>
@@ -66,7 +66,7 @@ function ListingDetail() {
         <div className="breadcrumb">
           <Link to="/">홈</Link>
           <span>/</span>
-          <Link to="/listings">검증 매물</Link>
+          <Link to="/listings">급매 지도</Link>
           <span>/</span>
           <span>{listing.title}</span>
         </div>
@@ -243,8 +243,8 @@ function ListingDetail() {
         {relatedListings.length > 0 && (
           <section className="related-section">
             <div className="section-heading">
-              <span className="eyebrow">More in {listing.district}</span>
-              <h2>같은 권역의 다른 검증 매물</h2>
+              <span className="eyebrow">{listing.district} 추천</span>
+              <h2>같은 권역의 다른 급매</h2>
             </div>
 
             <div className="listing-grid">

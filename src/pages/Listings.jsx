@@ -173,10 +173,10 @@ function Listings() {
       <section className="page-hero listings-hero">
         <div className="container">
           <span className="eyebrow">급매 지도</span>
-          <h1 className="page-title">권역 흐름과 급매 밀도를 함께 보는 화면</h1>
+          <h1 className="page-title">권역 흐름과 급매 분포를 한 화면에서 확인하세요</h1>
           <p className="page-desc">
-            단순 목록이 아니라, 어느 지역에 지금 기회가 몰려 있는지부터 보고 그다음 매물로
-            내려가는 구조로 바꿨습니다.
+            홈에서 본 기회를 여기서 더 촘촘하게 비교하고, 필터와 문의까지 자연스럽게 이어갈 수
+            있습니다.
           </p>
 
           <div className="market-summary-grid">
@@ -353,8 +353,8 @@ function Listings() {
 
               <div className="map-stage-note">
                 <p>
-                  권역 버튼을 누르면 해당 지역만 바로 좁혀집니다. 지금은 실제 지도 대신 거래 밀도판
-                  형태로 먼저 배치했습니다.
+                  권역 버튼을 누르면 해당 지역만 바로 좁혀집니다. 실제 지도를 억지로 넣기보다,
+                  지금은 탐색 속도가 빠른 권역 보드 형태로 정리했습니다.
                 </p>
               </div>
             </aside>
@@ -364,7 +364,8 @@ function Listings() {
                 <div>
                   <p className="results-count">검색 결과 {filteredListings.length}건</p>
                   <p className="results-copy">
-                    권역 보드에서 지역을 고르고, 오른쪽 피드에서 바로 매물 판단까지 이어집니다.
+                    권역 보드에서 지역을 고르고, 오른쪽 결과 영역에서 바로 비교와 상세 검토까지
+                    이어집니다.
                   </p>
                 </div>
               </div>
