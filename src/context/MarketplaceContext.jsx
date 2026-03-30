@@ -1,39 +1,23 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
-  clearStoredToken,
   api,
-  getStoredToken,
-  setStoredToken,
+  backendLabel,
+  backendMode,
+  clearPersistedAuth,
+  defaultOptions,
+  defaultStats,
+  getInitialAuthState,
+  isWritableBackend,
+  subscribeAuthState,
 } from "../lib/api";
 
 const MarketplaceContext = createContext(null);
 
-const defaultStats = {
-  listingsCount: 0,
-  averageDiscount: 0,
-  usersCount: 0,
-  alertsCount: 0,
-  inquiriesCount: 0,
-};
-
-const defaultOptions = {
-  districtOptions: ["전체", "서울", "경기", "인천"],
-  propertyTypes: ["전체", "아파트", "주상복합", "오피스텔", "빌라"],
-  urgentReasonOptions: [
-    "양도세 일정 대응",
-    "사업 자금 확보",
-    "대출 만기 압박",
-    "상속 정리",
-    "이사 일정 압박",
-  ],
-};
-
 export function MarketplaceProvider({ children }) {
-  const [token, setToken] = useState(() =>
-    typeof window === "undefined" ? "" : getStoredToken(),
-  );
+  const [authState, setAuthState] = useState(() => getInitialAuthState());
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
+  const [bootstrapError, setBootstrapError] = useState("");
   const [user, setUser] = useState(null);
   const [listings, setListings] = useState([]);
   const [stats, setStats] = useState(defaultStats);
@@ -44,9 +28,9 @@ export function MarketplaceProvider({ children }) {
   const [adminOverview, setAdminOverview] = useState(null);
   const [demoAccounts, setDemoAccounts] = useState([]);
 
-  async function refreshData(activeToken = token) {
+  async function refreshData(activeAuthState = authState) {
     const [bootstrapPayload, demoPayload] = await Promise.all([
-      api.bootstrap(activeToken),
+      api.bootstrap(activeAuthState),
       api.fetchDemoAccounts(),
     ]);
 
@@ -59,7 +43,14 @@ export function MarketplaceProvider({ children }) {
     setInquiries(bootstrapPayload.inquiries ?? []);
     setAdminOverview(bootstrapPayload.admin ?? null);
     setDemoAccounts(demoPayload.accounts ?? []);
+    setBootstrapError("");
   }
+
+  useEffect(() => {
+    return subscribeAuthState(() => {
+      setAuthState(`${Date.now()}`);
+    });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,21 +59,28 @@ export function MarketplaceProvider({ children }) {
       setIsBootstrapping(true);
 
       try {
-        await refreshData(token);
+        await refreshData(authState);
       } catch (error) {
-        if (token) {
-          clearStoredToken();
-          if (!cancelled) {
-            setToken("");
-          }
-        }
+        console.error(error);
 
-        if (!cancelled) {
+        if (backendMode === "rest" && authState) {
+          clearPersistedAuth();
+
+          if (!cancelled) {
+            setAuthState("");
+          }
+
           try {
             await refreshData("");
           } catch (fallbackError) {
             console.error(fallbackError);
+
+            if (!cancelled) {
+              setBootstrapError(fallbackError.message);
+            }
           }
+        } else if (!cancelled) {
+          setBootstrapError(error.message);
         }
       } finally {
         if (!cancelled) {
@@ -96,16 +94,17 @@ export function MarketplaceProvider({ children }) {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [authState]);
 
   async function login(credentials) {
     setIsAuthLoading(true);
 
     try {
       const response = await api.login(credentials);
-      setStoredToken(response.token);
-      setToken(response.token);
-      return response.user;
+      const nextAuthState = getInitialAuthState() || `${Date.now()}`;
+      setAuthState(nextAuthState);
+      await refreshData(nextAuthState);
+      return response;
     } finally {
       setIsAuthLoading(false);
     }
@@ -116,76 +115,64 @@ export function MarketplaceProvider({ children }) {
 
     try {
       const response = await api.register(payload);
-      setStoredToken(response.token);
-      setToken(response.token);
-      return response.user;
+      const nextAuthState = getInitialAuthState() || `${Date.now()}`;
+      setAuthState(nextAuthState);
+      await refreshData(nextAuthState);
+      return response;
     } finally {
       setIsAuthLoading(false);
     }
   }
 
   async function logout() {
-    clearStoredToken();
-    setToken("");
+    await api.logout();
     setUser(null);
     setAlertProfiles([]);
     setSubmissions([]);
     setInquiries([]);
     setAdminOverview(null);
+
+    const nextAuthState = getInitialAuthState() || `${Date.now()}`;
+    setAuthState(nextAuthState);
+    await refreshData(nextAuthState);
   }
 
   async function saveAlertProfile(alert) {
-    if (!token) {
-      throw new Error("알림 저장은 로그인 후 이용할 수 있습니다.");
-    }
-
-    const response = await api.createAlert(alert, token);
-    await refreshData(token);
+    const response = await api.createAlert(alert, authState);
+    await refreshData(getInitialAuthState() || `${Date.now()}`);
     return response.alert;
   }
 
   async function removeAlertProfile(id) {
-    if (!token) {
-      throw new Error("알림 삭제는 로그인 후 이용할 수 있습니다.");
-    }
-
-    await api.deleteAlert(id, token);
-    await refreshData(token);
+    await api.deleteAlert(id, authState);
+    await refreshData(getInitialAuthState() || `${Date.now()}`);
   }
 
   async function submitListing(draft) {
-    if (!token) {
-      throw new Error("매도 등록은 로그인 후 이용할 수 있습니다.");
-    }
-
-    const response = await api.createSubmission(draft, token);
-    await refreshData(token);
+    const response = await api.createSubmission(draft, authState);
+    await refreshData(getInitialAuthState() || `${Date.now()}`);
     return response.submission;
   }
 
   async function createInquiry(payload) {
-    if (!token) {
-      throw new Error("매물 문의는 로그인 후 이용할 수 있습니다.");
-    }
-
-    const response = await api.createInquiry(payload, token);
-    await refreshData(token);
+    const response = await api.createInquiry(payload, authState);
+    await refreshData(getInitialAuthState() || `${Date.now()}`);
     return response.inquiry;
   }
 
   async function refreshAdminOverview() {
-    if (!token || user?.role !== "admin") {
+    if (!user || user.role !== "admin") {
       throw new Error("관리자 권한이 필요합니다.");
     }
 
-    const response = await api.fetchAdminOverview(token);
+    const response = await api.fetchAdminOverview(authState);
     setAdminOverview(response.admin);
     return response.admin;
   }
 
   const value = useMemo(
     () => ({
-      token,
+      authState,
       user,
       listings,
       stats,
@@ -195,10 +182,14 @@ export function MarketplaceProvider({ children }) {
       inquiries,
       adminOverview,
       demoAccounts,
+      backendMode,
+      backendLabel,
+      isWritableBackend,
       isAuthenticated: Boolean(user),
       isAdmin: user?.role === "admin",
       isBootstrapping,
       isAuthLoading,
+      bootstrapError,
       login,
       register,
       logout,
@@ -210,7 +201,7 @@ export function MarketplaceProvider({ children }) {
       refreshAdminOverview,
     }),
     [
-      token,
+      authState,
       user,
       listings,
       stats,
@@ -222,6 +213,7 @@ export function MarketplaceProvider({ children }) {
       demoAccounts,
       isBootstrapping,
       isAuthLoading,
+      bootstrapError,
     ],
   );
 

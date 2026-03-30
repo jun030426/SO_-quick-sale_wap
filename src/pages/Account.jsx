@@ -21,6 +21,9 @@ function Account() {
     inquiries,
     submissions,
     demoAccounts,
+    backendMode,
+    backendLabel,
+    isWritableBackend,
     isAuthenticated,
     isAuthLoading,
     login,
@@ -40,9 +43,9 @@ function Account() {
     event.preventDefault();
 
     try {
-      await login(loginForm);
+      const response = await login(loginForm);
       setLoginForm(loginInitial);
-      applyFeedback("로그인이 완료되었습니다.", "success");
+      applyFeedback(response?.message || "로그인이 완료되었습니다.", "success");
     } catch (error) {
       applyFeedback(error.message, "danger");
     }
@@ -52,9 +55,9 @@ function Account() {
     event.preventDefault();
 
     try {
-      await register(registerForm);
+      const response = await register(registerForm);
       setRegisterForm(registerInitial);
-      applyFeedback("회원가입이 완료되었습니다.", "success");
+      applyFeedback(response?.message || "회원가입이 완료되었습니다.", "success");
     } catch (error) {
       applyFeedback(error.message, "danger");
     }
@@ -84,6 +87,7 @@ function Account() {
                   <strong>{user.name}</strong>
                   <span>{user.email}</span>
                   <span>{user.role === "admin" ? "운영 관리자" : "일반 사용자"}</span>
+                  <span>{backendLabel}</span>
                 </div>
                 <div className="account-actions">
                   <Link to="/alerts" className="btn btn-outline">
@@ -229,24 +233,39 @@ function Account() {
                 </form>
               </article>
 
-              <article className="account-card">
-                <div className="panel-header">
-                  <h2>테스트 계정</h2>
-                </div>
-                <div className="demo-account-list">
-                  {demoAccounts.map((account) => (
-                    <div key={account.email} className="demo-account-item">
-                      <strong>{account.role === "admin" ? "관리자" : "일반 사용자"}</strong>
-                      <span>{account.email}</span>
-                      <span>{account.passwordHint}</span>
-                    </div>
-                  ))}
-                </div>
-                <p className="helper-copy">
-                  로컬 테스트용 계정입니다. 운영 배포 전에는 반드시 비밀번호 정책과 메일 인증을
-                  강화해야 합니다.
-                </p>
-              </article>
+              {!isWritableBackend && (
+                <article className="account-card">
+                  <div className="panel-header">
+                    <h2>실사용 연결 필요</h2>
+                  </div>
+                  <p className="helper-copy">
+                    지금 보고 있는 빌드는 읽기 전용입니다. Netlify에는{" "}
+                    <code>VITE_SUPABASE_URL</code>과 <code>VITE_SUPABASE_ANON_KEY</code>를
+                    넣어야 실제 회원가입과 저장이 동작합니다.
+                  </p>
+                </article>
+              )}
+
+              {backendMode === "rest" && demoAccounts.length > 0 && (
+                <article className="account-card">
+                  <div className="panel-header">
+                    <h2>테스트 계정</h2>
+                  </div>
+                  <div className="demo-account-list">
+                    {demoAccounts.map((account) => (
+                      <div key={account.email} className="demo-account-item">
+                        <strong>{account.role === "admin" ? "관리자" : "일반 사용자"}</strong>
+                        <span>{account.email}</span>
+                        <span>{account.passwordHint}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="helper-copy">
+                    로컬 API 서버에만 제공되는 테스트 계정입니다. 실배포에서는 Supabase 계정을
+                    직접 생성해 사용하세요.
+                  </p>
+                </article>
+              )}
             </>
           )}
         </div>

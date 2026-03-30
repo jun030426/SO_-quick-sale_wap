@@ -5,7 +5,14 @@ import { useMarketplace } from "../context/MarketplaceContext";
 import "../styles/home.css";
 
 function Home() {
-  const { listings, alertProfiles, submissions, stats, isAuthenticated } = useMarketplace();
+  const {
+    listings,
+    alertProfiles,
+    stats,
+    isAuthenticated,
+    backendLabel,
+    isWritableBackend,
+  } = useMarketplace();
 
   const featuredListings = listings.slice(0, 3);
 
@@ -83,8 +90,8 @@ function Home() {
             </h1>
             <p className="hero-description">
               이제 이 사이트는 단순 소개 화면이 아니라 실제 계정, 실제 저장, 실제 문의가 가능한
-              로컬 서비스입니다. 실수요자는 조건을 저장하고, 매도인은 등록 심사를 받고, 운영자는
-              대시보드에서 흐름을 확인할 수 있습니다.
+              서비스 구조로 바뀌었습니다. 실수요자는 조건을 저장하고, 매도인은 등록 심사를 받고,
+              운영자는 대시보드에서 흐름을 확인할 수 있습니다.
             </p>
 
             <div className="hero-actions">
@@ -125,13 +132,20 @@ function Home() {
               </div>
               <div>
                 <strong>데이터 저장</strong>
-                <span>SQLite 영속 저장</span>
+                <span>{backendLabel}</span>
               </div>
               <div>
                 <strong>운영 관리</strong>
                 <span>관리자 대시보드 제공</span>
               </div>
             </div>
+
+            {!isWritableBackend && (
+              <p className="helper-copy">
+                이 미리보기 빌드는 읽기 전용입니다. 실제 회원가입과 저장은 Supabase 환경변수가
+                연결된 배포본에서 동작합니다.
+              </p>
+            )}
           </div>
         </div>
       </section>
