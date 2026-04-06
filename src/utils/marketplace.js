@@ -1,29 +1,27 @@
+import { inferListingMapData } from "./location.js";
+
 const MAN_PER_EOK = 10000;
 const PLACEHOLDER_IMAGE =
   "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80";
 
-const brokerDirectory = {
-  서울: {
-    name: "서울 시그널 공인중개사",
-    intro: "실수요자 급매 협상과 현장 검증을 빠르게 연결하는 파트너입니다.",
-    responseTime: "평균 13분",
-    deals: 41,
-    phone: "02-6002-1180",
-  },
-  경기: {
-    name: "경기 패스트 공인중개사",
-    intro: "수도권 실거주 수요 매칭이 빠른 파트너입니다.",
-    responseTime: "평균 17분",
-    deals: 34,
-    phone: "031-8008-2727",
-  },
-  인천: {
-    name: "인천 링크 공인중개사",
-    intro: "송도와 연수권 급매 매칭 경험이 풍부한 파트너입니다.",
-    responseTime: "평균 16분",
-    deals: 26,
-    phone: "032-777-1900",
-  },
+const brokerAreaCodes = {
+  서울: "02",
+  부산: "051",
+  대구: "053",
+  인천: "032",
+  광주: "062",
+  대전: "042",
+  울산: "052",
+  세종: "044",
+  경기: "031",
+  강원: "033",
+  충북: "043",
+  충남: "041",
+  전북: "063",
+  전남: "061",
+  경북: "054",
+  경남: "055",
+  제주: "064",
 };
 
 function clamp(value, min, max) {
@@ -41,7 +39,16 @@ function createId(prefix = "entry") {
 }
 
 function createPartnerBroker(district) {
-  return brokerDirectory[district] ?? brokerDirectory.서울;
+  const areaCode = brokerAreaCodes[district] ?? "02";
+  const districtLabel = district || "전국";
+
+  return {
+    name: `${districtLabel} 시그널 공인중개사`,
+    intro: `${districtLabel} 아파트 급매 협상과 현장 검증을 빠르게 연결하는 파트너입니다.`,
+    responseTime: "평균 15분",
+    deals: 32,
+    phone: `${areaCode}-6002-1180`,
+  };
 }
 
 export function formatPrice(value) {
@@ -151,6 +158,7 @@ export function normalizeListing(rawListing) {
     toNumber(String(rawListing.area ?? "").replace(/[^\d.]/g, ""));
 
   const partnerBroker = rawListing.partnerBroker ?? createPartnerBroker(rawListing.district);
+  const mapData = inferListingMapData(rawListing);
   const verification = buildVerification({
     ...rawListing,
     price,
@@ -169,9 +177,13 @@ export function normalizeListing(rawListing) {
     listingAverage,
     areaValue,
     builtYear: toNumber(rawListing.builtYear),
+    type: rawListing.type || "아파트",
     area: rawListing.area ?? `${areaValue}㎡`,
     partnerBroker,
     image: rawListing.image ?? PLACEHOLDER_IMAGE,
+    latitude: mapData.latitude,
+    longitude: mapData.longitude,
+    mapLabel: rawListing.mapLabel ?? mapData.mapLabel,
     createdAt: rawListing.createdAt ?? new Date().toISOString(),
   };
 }
@@ -321,13 +333,13 @@ export function evaluateListingDraft(draft) {
     id: createId("listing"),
     title:
       draft.title?.trim() ||
-      `${draft.location?.trim() || draft.district} ${draft.type} ${
+      `${draft.location?.trim() || draft.district} ${draft.type || "아파트"} ${
         areaValue > 0 ? `${areaValue}㎡` : ""
       }`.trim(),
     district: draft.district,
     location: draft.location?.trim() || `${draft.district} 상세 주소 확인 필요`,
     neighborhood: draft.location?.trim() || draft.district,
-    type: draft.type,
+    type: draft.type || "아파트",
     price,
     marketPrice,
     recentDealPrice: Math.round(marketPrice * 0.985),
@@ -341,6 +353,8 @@ export function evaluateListingDraft(draft) {
     builtYear: toNumber(draft.builtYear) || new Date().getFullYear(),
     urgentReason: draft.urgentReason,
     sellerType: requesterLabel,
+    latitude: draft.latitude,
+    longitude: draft.longitude,
     description:
       draft.description?.trim() ||
       "매도 등록 단계에서 입력된 기본 설명입니다. 파트너 중개사 연결 후 현장 검증과 보완 자료가 추가됩니다.",

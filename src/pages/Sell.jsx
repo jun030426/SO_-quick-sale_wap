@@ -10,13 +10,13 @@ function createInitialForm(options) {
     title: "",
     district: options.districtOptions.find((item) => item !== "전체") || "서울",
     location: "",
-    type: options.propertyTypes.find((item) => item !== "전체") || "아파트",
+    type: "아파트",
     price: "",
     marketPrice: "",
     areaValue: "",
     floor: "",
     builtYear: "",
-    urgentReason: options.urgentReasonOptions[0] || "양도세 일정 대응",
+    urgentReason: options.urgentReasonOptions[0] || "잔금 일정 대응",
     description: "",
     image: "",
     hasVideo: true,
@@ -45,8 +45,8 @@ function Sell() {
       setResult(evaluation);
       setFeedback(
         evaluation.approved
-          ? "심사가 완료되어 공개 매물 목록에 반영되었습니다."
-          : "심사는 저장되었고, 보완이 필요한 항목이 함께 기록되었습니다.",
+          ? "심사가 완료되어 공개 매물과 지도에 바로 반영됐습니다."
+          : "심사 요청이 접수됐고, 보완이 필요한 항목도 함께 기록됐습니다.",
       );
     } catch (error) {
       setFeedback(error.message);
@@ -58,9 +58,10 @@ function Sell() {
       <section className="page-hero">
         <div className="container">
           <span className="eyebrow">매도 등록</span>
-          <h1 className="page-title">매도 등록 단계에서 바로 급매 여부를 심사합니다</h1>
+          <h1 className="page-title">아파트 매도를 등록하면 심사 후 지도와 목록에 바로 노출됩니다</h1>
           <p className="page-desc">
-            로그인한 사용자는 등록 심사 결과와 승인 이력을 계정에 남길 수 있습니다.
+            상세 위치와 가격 정보만 간단히 등록해도, 승인된 매물은 급매 지도와 목록에서 바로 확인할 수
+            있게 구성했습니다.
           </p>
         </div>
       </section>
@@ -69,13 +70,13 @@ function Sell() {
         <div className="container sell-layout">
           <article className="sell-card">
             <div className="panel-header">
-              <h2>급매 등록 신청</h2>
+              <h2>아파트 매도 등록 요청</h2>
             </div>
 
             {!isAuthenticated && (
               <div className="empty-box compact">
                 <h3>로그인 후 등록할 수 있습니다</h3>
-                <p>실제 저장과 이력 관리는 계정이 필요합니다.</p>
+                <p>실제 저장과 지도 노출 반영은 계정 기준으로 처리됩니다.</p>
                 <Link to="/login" className="btn btn-primary">
                   로그인하러 가기
                 </Link>
@@ -102,48 +103,28 @@ function Sell() {
                   id="sell-title"
                   type="text"
                   className="search-input"
-                  placeholder="예: 성수동 올수리 74㎡"
+                  placeholder="예: 성수 서울숲 리버뷰 74㎡"
                   value={form.title}
                   onChange={(event) => handleChange("title", event.target.value)}
                 />
               </div>
 
-              <div className="filter-grid-two">
-                <div className="filter-group">
-                  <label htmlFor="sell-district">광역 권역</label>
-                  <select
-                    id="sell-district"
-                    className="search-input"
-                    value={form.district}
-                    onChange={(event) => handleChange("district", event.target.value)}
-                  >
-                    {options.districtOptions
-                      .filter((item) => item !== "전체")
-                      .map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-
-                <div className="filter-group">
-                  <label htmlFor="sell-type">유형</label>
-                  <select
-                    id="sell-type"
-                    className="search-input"
-                    value={form.type}
-                    onChange={(event) => handleChange("type", event.target.value)}
-                  >
-                    {options.propertyTypes
-                      .filter((item) => item !== "전체")
-                      .map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                  </select>
-                </div>
+              <div className="filter-group">
+                <label htmlFor="sell-district">광역 권역</label>
+                <select
+                  id="sell-district"
+                  className="search-input"
+                  value={form.district}
+                  onChange={(event) => handleChange("district", event.target.value)}
+                >
+                  {options.districtOptions
+                    .filter((item) => item !== "전체")
+                    .map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                </select>
               </div>
 
               <div className="filter-group">
@@ -152,7 +133,7 @@ function Sell() {
                   id="sell-location"
                   type="text"
                   className="search-input"
-                  placeholder="예: 서울 성동구 성수동"
+                  placeholder="예: 서울 성동구 성수동 00아파트"
                   value={form.location}
                   onChange={(event) => handleChange("location", event.target.value)}
                 />
@@ -288,7 +269,7 @@ function Sell() {
                 </label>
               </div>
 
-              <button type="submit" className="btn btn-primary">
+              <button type="submit" className="btn btn-primary" disabled={!isAuthenticated}>
                 AI 심사 실행
               </button>
 
@@ -303,9 +284,9 @@ function Sell() {
               </div>
 
               <ul className="plain-list">
-                <li>최근 3개월 실거래 평균 대비 5% 이상 할인</li>
-                <li>동일 생활권 등록 평균과 교차 비교</li>
-                <li>영상 현장과 리포트 유무를 신뢰 점수에 반영</li>
+                <li>최근 3개월 실거래 평균 대비 5% 이상 할인 여부</li>
+                <li>동일 생활권 등록 평균과 비교한 가격 경쟁력</li>
+                <li>상세 위치 정보만 입력해도 급매 지도 반영 가능 여부를 자동으로 확인</li>
               </ul>
             </article>
 
@@ -344,8 +325,7 @@ function Sell() {
                 </div>
               ) : (
                 <p className="detail-paragraph">
-                  등록 전 심사를 실행하면 결과가 계정 이력에 저장되고, 승인된 경우 바로 목록에
-                  반영됩니다.
+                  심사를 실행하면 결과가 계정 이력에 저장되고, 승인 시 지도와 목록에 바로 노출됩니다.
                 </p>
               )}
             </article>

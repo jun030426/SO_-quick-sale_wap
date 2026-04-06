@@ -35,6 +35,9 @@ create table if not exists public.listings (
   tags jsonb not null default '[]'::jsonb,
   partner_broker jsonb not null default '{}'::jsonb,
   image text not null,
+  latitude double precision,
+  longitude double precision,
+  map_label text,
   created_at timestamptz not null default timezone('utc', now()),
   source text not null default 'seed',
   owner_user_id uuid references public.profiles(id) on delete set null,
@@ -73,6 +76,8 @@ create table if not exists public.submissions (
   urgent_reason text not null,
   description text,
   image text,
+  latitude double precision,
+  longitude double precision,
   has_video boolean not null default false,
   has_report boolean not null default false,
   approved boolean not null default false,
@@ -351,6 +356,8 @@ declare
     nullif(trim(payload_input ->> 'image'), ''),
     'https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80'
   );
+  latitude_input double precision := nullif(payload_input ->> 'latitude', '')::double precision;
+  longitude_input double precision := nullif(payload_input ->> 'longitude', '')::double precision;
   has_video_input boolean := coalesce(nullif(payload_input ->> 'hasVideo', '')::boolean, false);
   has_report_input boolean := coalesce(nullif(payload_input ->> 'hasReport', '')::boolean, false);
   area_value_input numeric(10, 2) := greatest(coalesce(nullif(payload_input ->> 'areaValue', '')::numeric, 0), 0);
@@ -464,6 +471,9 @@ begin
       tags,
       partner_broker,
       image,
+      latitude,
+      longitude,
+      map_label,
       created_at,
       source,
       owner_user_id,
@@ -503,6 +513,9 @@ begin
       jsonb_build_array('신규 등록', requester_label, urgent_reason_input),
       partner_broker_payload,
       image_input,
+      latitude_input,
+      longitude_input,
+      coalesce(location_input, district_input),
       timezone('utc', now()),
       'user',
       current_user_id,
@@ -538,6 +551,8 @@ begin
       'description', final_description,
       'partnerBroker', partner_broker_payload,
       'image', image_input,
+      'latitude', latitude_input,
+      'longitude', longitude_input,
       'createdAt', timezone('utc', now())
     );
   end if;
@@ -559,6 +574,8 @@ begin
     urgent_reason,
     description,
     image,
+    latitude,
+    longitude,
     has_video,
     has_report,
     approved,
@@ -583,6 +600,8 @@ begin
     urgent_reason_input,
     final_description,
     image_input,
+    latitude_input,
+    longitude_input,
     has_video_input,
     has_report_input,
     approved_input,

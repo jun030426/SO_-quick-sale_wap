@@ -36,7 +36,7 @@ function Register() {
       <section className="page-hero">
         <div className="container">
           <span className="eyebrow">회원가입</span>
-          <h1 className="page-title">계정을 만들고 급매 흐름을 계속 이어가세요</h1>
+          <h1 className="page-title">계정을 만들고 아파트 급매 흐름을 계속 이어가세요</h1>
           <p className="page-desc">
             회원가입 후에는 알림 저장, 문의 이력 확인, 매도 등록 심사 결과까지 계정 기준으로
             관리할 수 있습니다.

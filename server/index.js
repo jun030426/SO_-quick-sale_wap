@@ -24,10 +24,25 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
 const distDir = path.join(rootDir, "dist");
 const port = Number(process.env.PORT) || 4000;
+const naverSearchClientId = String(process.env.NAVER_SEARCH_CLIENT_ID || "").trim();
+const naverSearchClientSecret = String(process.env.NAVER_SEARCH_CLIENT_SECRET || "").trim();
 
 const app = express();
 
 app.use(express.json({ limit: "1mb" }));
+
+function decodeHtmlEntities(value) {
+  return String(value || "")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
+function stripHtmlTags(value) {
+  return decodeHtmlEntities(String(value || "").replace(/<[^>]*>/g, " ")).replace(/\s+/g, " ").trim();
+}
 
 function getRequestUser(req) {
   const token = readBearerToken(req);
@@ -208,6 +223,66 @@ app.get("/api/meta/demo-accounts", (req, res) => {
       },
     ],
   });
+});
+
+app.get("/api/news-feed", async (req, res) => {
+  if (!naverSearchClientId || !naverSearchClientSecret) {
+    return res.json({
+      sourceConfigured: false,
+      provider: "naver-search-news",
+      query: String(req.query.q || "부동산 아파트 급매"),
+      articles: [],
+    });
+  }
+
+  try {
+    const query = String(req.query.q || "부동산 아파트 급매").trim() || "부동산 아파트 급매";
+    const display = Math.max(1, Math.min(Number(req.query.limit) || 6, 10));
+    const requestUrl = new URL("https://openapi.naver.com/v1/search/news.json");
+    requestUrl.searchParams.set("query", query);
+    requestUrl.searchParams.set("display", String(display));
+    requestUrl.searchParams.set("start", "1");
+    requestUrl.searchParams.set("sort", "date");
+
+    const response = await fetch(requestUrl, {
+      headers: {
+        "X-Naver-Client-Id": naverSearchClientId,
+        "X-Naver-Client-Secret": naverSearchClientSecret,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return res.status(502).json({
+        message: "네이버 뉴스 검색 API 응답을 불러오지 못했습니다.",
+        detail: errorText,
+      });
+    }
+
+    const payload = await response.json();
+    const articles = Array.isArray(payload.items)
+      ? payload.items.map((item) => ({
+          title: stripHtmlTags(item.title),
+          description: stripHtmlTags(item.description),
+          link: item.link,
+          originallink: item.originallink,
+          source: "네이버 뉴스 검색",
+          pubDate: item.pubDate,
+        }))
+      : [];
+
+    return res.json({
+      sourceConfigured: true,
+      provider: "naver-search-news",
+      query,
+      articles,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "실제 기사 피드를 불러오지 못했습니다.",
+      detail: error.message,
+    });
+  }
 });
 
 if (fs.existsSync(distDir)) {

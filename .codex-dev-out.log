@@ -1,0 +1,26 @@
+
+> quick-sale@0.0.0 dev
+> concurrently "npm run dev:server" "npm run dev:client"
+
+[0] 
+[0] > quick-sale@0.0.0 dev:server
+[0] > node --watch server/index.js
+[0] 
+[1] 
+[1] > quick-sale@0.0.0 dev:client
+[1] > vite
+[1] 
+[1] [2mAM 1:19:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m Re-optimizing dependencies because lockfile has changed
+[1] 
+[1]   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m384[22m[2m[0m ms[22m
+[1] 
+[1]   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[1] [2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[0] quick-sale server listening on http://localhost:4000
+[0] Restarting 'server/index.js'
+[0] quick-sale server listening on http://localhost:4000
+[0] Failed running 'server/index.js'. Waiting for file changes before restarting...
+[0] ^C^C�ϰ� �۾��� �����ðڽ��ϱ� (Y/N)? 
+[1] ^C^C�ϰ� �۾��� �����ðڽ��ϱ� (Y/N)? 
+[1] npm run dev:client exited with code 3221225786
+[0] npm run dev:server exited with code 3221225786

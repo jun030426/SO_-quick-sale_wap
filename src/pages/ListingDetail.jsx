@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import ApartmentMap from "../components/ApartmentMap";
 import ListingCard from "../components/ListingCard";
 import { useMarketplace } from "../context/MarketplaceContext";
 import { formatPercent, formatPrice } from "../utils/marketplace";
@@ -8,20 +9,33 @@ import "../styles/detail.css";
 function ListingDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { listings, createInquiry, isAuthenticated } = useMarketplace();
+  const {
+    listings,
+    createInquiry,
+    isAuthenticated,
+    addRecentViewed,
+    toggleListingFavorite,
+    toggleComplexFavorite,
+    isListingFavorited,
+    isComplexFavorited,
+  } = useMarketplace();
   const [requestedMatch, setRequestedMatch] = useState(false);
   const [message, setMessage] = useState("");
   const [feedback, setFeedback] = useState("");
   const listing = listings.find((item) => item.id === id);
+
+  useEffect(() => {
+    if (listing) {
+      addRecentViewed(listing.id);
+    }
+  }, [listing?.id]);
 
   const relatedListings = useMemo(() => {
     if (!listing) {
       return [];
     }
 
-    return listings
-      .filter((item) => item.id !== listing.id && item.district === listing.district)
-      .slice(0, 3);
+    return listings.filter((item) => item.id !== listing.id && item.district === listing.district).slice(0, 3);
   }, [listing, listings]);
 
   const handleInquirySubmit = async (event) => {
@@ -38,7 +52,7 @@ function ListingDetail() {
         message,
       });
       setMessage("");
-      setFeedback("문의가 접수되었습니다. 계정 페이지에서도 다시 확인할 수 있습니다.");
+      setFeedback("문의가 접수되었습니다. 계정 페이지에서 다시 확인할 수 있습니다.");
     } catch (error) {
       setFeedback(error.message);
     }
@@ -59,6 +73,8 @@ function ListingDetail() {
   }
 
   const broker = listing.partnerBroker;
+  const favoritedListing = isListingFavorited(listing.id);
+  const favoritedComplex = isComplexFavorited(listing);
 
   return (
     <div className="detail-page">
@@ -75,8 +91,8 @@ function ListingDetail() {
           <div className="detail-visual">
             <img src={listing.image} alt={listing.title} className="detail-image" />
             <div className="detail-visual-chip">
-              <strong>AI 검증 통과</strong>
-              <span>등록 전 기준 충족 매물</span>
+              <strong>{listing.mapLabel || listing.neighborhood}</strong>
+              <span>{listing.location}</span>
             </div>
           </div>
 
@@ -95,8 +111,7 @@ function ListingDetail() {
 
             <p className="summary-price">{formatPrice(listing.price)}</p>
             <p className="summary-subline">
-              최근 3개월 실거래 평균 {formatPrice(listing.marketPrice)} 대비{" "}
-              {formatPercent(listing.discountRate)} 저렴
+              최근 3개월 평균 {formatPrice(listing.marketPrice)} 대비 {formatPercent(listing.discountRate)} 낮은 가격
             </p>
 
             <div className="score-grid">
@@ -114,9 +129,29 @@ function ListingDetail() {
               </article>
             </div>
 
+            <div className="detail-interest-actions">
+              <button
+                type="button"
+                className={`interest-chip-button large${favoritedListing ? " active" : ""}`}
+                onClick={() => toggleListingFavorite(listing.id)}
+              >
+                {favoritedListing ? "찜한 매물" : "매물 찜"}
+              </button>
+              <button
+                type="button"
+                className={`interest-chip-button large${favoritedComplex ? " active" : ""}`}
+                onClick={() => toggleComplexFavorite(listing)}
+              >
+                {favoritedComplex ? "단지 저장됨" : "단지 저장"}
+              </button>
+              <Link to="/saved" className="interest-link-button">
+                관심목록 보기
+              </Link>
+            </div>
+
             <div className="detail-actions">
               <button type="button" className="btn btn-primary" onClick={() => setRequestedMatch(true)}>
-                파트너 중개사 정보 보기
+                상담 파트너 정보 보기
               </button>
               <Link
                 to={`/alerts?district=${encodeURIComponent(listing.district)}&type=${encodeURIComponent(
@@ -132,8 +167,7 @@ function ListingDetail() {
               <div className="match-box">
                 <strong>{broker.name}</strong>
                 <p>
-                  {broker.intro} 평균 응답 시간은 {broker.responseTime}, 유사 거래 경험은{" "}
-                  {broker.deals}건입니다.
+                  {broker.intro} 평균 응답 시간은 {broker.responseTime}, 유사 거래 경험은 {broker.deals}건입니다.
                 </p>
               </div>
             )}
@@ -142,6 +176,19 @@ function ListingDetail() {
 
         <section className="detail-grid">
           <article className="detail-card detail-card-wide">
+            <div className="detail-map-head">
+              <div>
+                <h2>지도 위치</h2>
+                <p className="detail-paragraph">
+                  등록된 아파트 급매 위치를 지도에서 바로 확인할 수 있습니다.
+                </p>
+              </div>
+              <span className="pill accent">{listing.mapLabel || listing.neighborhood}</span>
+            </div>
+            <ApartmentMap listings={[listing]} selectedListingId={listing.id} fallbackDistrict={listing.district} />
+          </article>
+
+          <article className="detail-card detail-card-wide">
             <h2>AI 검증 근거</h2>
             <div className="comparison-table">
               <div>
@@ -149,11 +196,11 @@ function ListingDetail() {
                 <strong>{formatPrice(listing.price)}</strong>
               </div>
               <div>
-                <span>최근 3개월 실거래 평균</span>
+                <span>최근 3개월 평균</span>
                 <strong>{formatPrice(listing.recentDealPrice)}</strong>
               </div>
               <div>
-                <span>동일 생활권 등록 평균</span>
+                <span>동일 생활권 평균</span>
                 <strong>{formatPrice(listing.listingAverage)}</strong>
               </div>
               <div>
@@ -172,7 +219,7 @@ function ListingDetail() {
           <article className="detail-card">
             <h2>매도 사유</h2>
             <p className="detail-paragraph">
-              {listing.urgentReason} 이슈로 빠른 거래가 필요한 {listing.sellerType} 매물입니다.
+              {listing.urgentReason} 사유로 빠른 거래가 필요한 {listing.sellerType} 매물입니다.
             </p>
           </article>
 
@@ -226,7 +273,7 @@ function ListingDetail() {
                 className="search-input text-area"
                 placeholder={
                   isAuthenticated
-                    ? "궁금한 점이나 방문 희망 일정을 남겨주세요."
+                    ? "방문 일정, 협의 가능한 금액, 궁금한 점을 적어주세요."
                     : "로그인 후 문의를 남길 수 있습니다."
                 }
                 value={message}
@@ -244,7 +291,7 @@ function ListingDetail() {
           <section className="related-section">
             <div className="section-heading">
               <span className="eyebrow">{listing.district} 추천</span>
-              <h2>같은 권역의 다른 급매</h2>
+              <h2>같은 권역의 다른 아파트 급매</h2>
             </div>
 
             <div className="listing-grid">

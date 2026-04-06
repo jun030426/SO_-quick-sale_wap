@@ -22,7 +22,7 @@ function Account() {
       <section className="page-hero">
         <div className="container">
           <span className="eyebrow">내 계정</span>
-          <h1 className="page-title">계정으로 저장하고, 문의하고, 다시 돌아오세요</h1>
+          <h1 className="page-title">아파트 급매 흐름을 계정으로 계속 이어가세요</h1>
           <p className="page-desc">
             이제 알림, 매도 등록, 문의 기록이 브라우저 임시 상태가 아니라 계정 단위로 유지됩니다.
           </p>
@@ -46,7 +46,7 @@ function Account() {
                 알림 관리
               </Link>
               <Link to="/sell" className="btn btn-primary">
-                매도 등록하기
+                아파트 매도 등록
               </Link>
               <button type="button" className="btn btn-outline" onClick={logout}>
                 로그아웃

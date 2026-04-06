@@ -1,31 +1,56 @@
-import { Link, NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useMarketplace } from "../context/MarketplaceContext";
 
 function Header() {
   const { user, isAdmin, isAuthenticated } = useMarketplace();
+  const { pathname } = useLocation();
+  const isAuthPage = pathname === "/login" || pathname === "/register";
+  const [isVisible, setIsVisible] = useState(() => isAuthPage);
+
+  useEffect(() => {
+    if (isAuthPage) {
+      setIsVisible(true);
+      return undefined;
+    }
+
+    const handleScroll = () => {
+      setIsVisible(window.scrollY > 120);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isAuthPage, pathname]);
 
   const navItems = [
-    { to: "/", label: "홈" },
     { to: "/listings", label: "급매 지도" },
-    { to: "/alerts", label: "급매 알림" },
     { to: "/sell", label: "매도 등록" },
-    { to: isAuthenticated ? "/account" : "/login", label: isAuthenticated ? "내 계정" : "로그인" },
+    { to: "/saved", label: "관심목록" },
+    { to: "/alerts", label: "급매 알림" },
   ];
 
   if (isAdmin) {
-    navItems.splice(4, 0, { to: "/admin", label: "운영 대시보드" });
+    navItems.push({ to: "/admin", label: "운영" });
   }
 
   return (
-    <header className="site-header">
+    <header
+      className={`site-header ${isAuthPage ? "site-header-auth" : "site-header-floating"}${
+        isVisible ? " is-visible" : ""
+      }`}
+    >
       <div className="container header-inner">
         <Link to="/" className="logo" aria-label="급매 홈으로 이동">
           <span className="logo-mark" aria-hidden="true">
-            급매
+            <img src="/quick-sale-logo.svg" alt="" className="logo-icon" />
           </span>
           <span className="logo-lockup">
-            <strong>대한민국 아파트 타임딜 거래소</strong>
-            <span>AI가 검증한 진짜 급매만 빠르게 연결합니다</span>
+            <strong>급매</strong>
+            <span>아파트 매도·매수 전용 플랫폼</span>
           </span>
         </Link>
 
@@ -42,13 +67,11 @@ function Header() {
         </nav>
 
         <div className="header-actions">
-          {isAuthenticated && (
-            <Link to="/account" className="header-user">
-              {user.name}님
-            </Link>
-          )}
-          <Link to="/alerts" className="btn btn-primary header-cta">
-            급매 알림 신청
+          <Link to={isAuthenticated ? "/account" : "/login"} className="btn btn-outline header-cta header-cta-light">
+            {isAuthenticated ? `${user.name}님` : "로그인"}
+          </Link>
+          <Link to="/listings" className="btn btn-outline header-cta header-cta-light">
+            문의하기
           </Link>
         </div>
       </div>

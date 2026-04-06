@@ -71,6 +71,9 @@ function mapListingRow(row) {
     tags: fromJson(row.tags, []),
     partnerBroker: fromJson(row.partner_broker, null),
     image: row.image,
+    latitude: row.latitude,
+    longitude: row.longitude,
+    mapLabel: row.map_label,
     createdAt: row.created_at,
     source: row.source,
     ownerUserId: row.owner_user_id,
@@ -83,19 +86,54 @@ function insertListing(listing, metadata = {}) {
 
   db.prepare(
     `
-      INSERT OR REPLACE INTO listings (
+      INSERT INTO listings (
         id, title, district, location, neighborhood, type, price, market_price,
         recent_deal_price, listing_average, score, has_video, has_report,
         area_value, area, floor, built_year, urgent_reason, seller_type,
         description, highlights, risks, transit, tags, partner_broker, image,
+        latitude, longitude, map_label,
         created_at, source, owner_user_id, status
       ) VALUES (
         @id, @title, @district, @location, @neighborhood, @type, @price, @marketPrice,
         @recentDealPrice, @listingAverage, @score, @hasVideo, @hasReport,
         @areaValue, @area, @floor, @builtYear, @urgentReason, @sellerType,
         @description, @highlights, @risks, @transit, @tags, @partnerBroker, @image,
+        @latitude, @longitude, @mapLabel,
         @createdAt, @source, @ownerUserId, @status
       )
+      ON CONFLICT(id) DO UPDATE SET
+        title = excluded.title,
+        district = excluded.district,
+        location = excluded.location,
+        neighborhood = excluded.neighborhood,
+        type = excluded.type,
+        price = excluded.price,
+        market_price = excluded.market_price,
+        recent_deal_price = excluded.recent_deal_price,
+        listing_average = excluded.listing_average,
+        score = excluded.score,
+        has_video = excluded.has_video,
+        has_report = excluded.has_report,
+        area_value = excluded.area_value,
+        area = excluded.area,
+        floor = excluded.floor,
+        built_year = excluded.built_year,
+        urgent_reason = excluded.urgent_reason,
+        seller_type = excluded.seller_type,
+        description = excluded.description,
+        highlights = excluded.highlights,
+        risks = excluded.risks,
+        transit = excluded.transit,
+        tags = excluded.tags,
+        partner_broker = excluded.partner_broker,
+        image = excluded.image,
+        latitude = excluded.latitude,
+        longitude = excluded.longitude,
+        map_label = excluded.map_label,
+        created_at = excluded.created_at,
+        source = excluded.source,
+        owner_user_id = excluded.owner_user_id,
+        status = excluded.status
     `,
   ).run({
     id: normalized.id,
@@ -124,6 +162,9 @@ function insertListing(listing, metadata = {}) {
     tags: toJson(normalized.tags),
     partnerBroker: toJson(normalized.partnerBroker),
     image: normalized.image,
+    latitude: normalized.latitude,
+    longitude: normalized.longitude,
+    mapLabel: normalized.mapLabel ?? normalized.neighborhood,
     createdAt: normalized.createdAt,
     source: metadata.source || normalized.source || "seed",
     ownerUserId: metadata.ownerUserId ?? normalized.ownerUserId ?? null,
@@ -171,6 +212,9 @@ function initializeSchema() {
       tags TEXT NOT NULL,
       partner_broker TEXT NOT NULL,
       image TEXT NOT NULL,
+      latitude REAL,
+      longitude REAL,
+      map_label TEXT,
       created_at TEXT NOT NULL,
       source TEXT NOT NULL DEFAULT 'seed',
       owner_user_id INTEGER,
@@ -210,6 +254,8 @@ function initializeSchema() {
       urgent_reason TEXT NOT NULL,
       description TEXT,
       image TEXT,
+      latitude REAL,
+      longitude REAL,
       has_video INTEGER NOT NULL DEFAULT 0,
       has_report INTEGER NOT NULL DEFAULT 0,
       approved INTEGER NOT NULL DEFAULT 0,
@@ -231,6 +277,20 @@ function initializeSchema() {
       FOREIGN KEY(listing_id) REFERENCES listings(id)
     );
   `);
+
+  ensureColumn("listings", "latitude", "REAL");
+  ensureColumn("listings", "longitude", "REAL");
+  ensureColumn("listings", "map_label", "TEXT");
+  ensureColumn("submissions", "latitude", "REAL");
+  ensureColumn("submissions", "longitude", "REAL");
+}
+
+function ensureColumn(tableName, columnName, definition) {
+  const columns = db.prepare(`PRAGMA table_info(${tableName})`).all();
+
+  if (!columns.some((column) => column.name === columnName)) {
+    db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
+  }
 }
 
 function seedDatabase() {
@@ -254,13 +314,18 @@ function seedDatabase() {
     ).run("테스트 사용자", "user@geupmae.kr", bcrypt.hashSync("user1234", 10), "user", now);
   }
 
-  const listingsCount = db.prepare("SELECT COUNT(*) AS count FROM listings").get().count;
+  const seedIds = listingsSeed.map((listing) => listing.id);
 
-  if (listingsCount === 0) {
-    listingsSeed.forEach((listing) => {
-      insertListing(listing, { source: "seed", status: "approved" });
-    });
+  if (seedIds.length > 0) {
+    const placeholders = seedIds.map(() => "?").join(", ");
+    db.prepare(
+      `UPDATE listings SET status = 'archived' WHERE source = 'seed' AND id NOT IN (${placeholders})`,
+    ).run(...seedIds);
   }
+
+  listingsSeed.forEach((listing) => {
+    insertListing(listing, { source: "seed", status: "approved" });
+  });
 }
 
 initializeSchema();
@@ -410,12 +475,12 @@ export function createSubmission(userId, draft) {
       INSERT INTO submissions (
         id, user_id, listing_id, requester_type, title, district, location, type,
         price, market_price, area_value, floor, built_year, urgent_reason,
-        description, image, has_video, has_report, approved, blockers,
+        description, image, latitude, longitude, has_video, has_report, approved, blockers,
         recommendations, created_at
       ) VALUES (
         @id, @userId, @listingId, @requesterType, @title, @district, @location, @type,
         @price, @marketPrice, @areaValue, @floor, @builtYear, @urgentReason,
-        @description, @image, @hasVideo, @hasReport, @approved, @blockers,
+        @description, @image, @latitude, @longitude, @hasVideo, @hasReport, @approved, @blockers,
         @recommendations, @createdAt
       )
     `,
@@ -436,6 +501,8 @@ export function createSubmission(userId, draft) {
     urgentReason: draft.urgentReason,
     description: draft.description ?? "",
     image: draft.image ?? "",
+    latitude: Number(draft.latitude) || null,
+    longitude: Number(draft.longitude) || null,
     hasVideo: draft.hasVideo ? 1 : 0,
     hasReport: draft.hasReport ? 1 : 0,
     approved: evaluation.approved ? 1 : 0,

@@ -8,7 +8,7 @@ function readInitialForm(searchParams) {
   return {
     name: "",
     district: searchParams.get("district") || "전체",
-    type: searchParams.get("type") || "전체",
+    type: "아파트",
     keyword: searchParams.get("keyword") || "",
     maxPrice: searchParams.get("maxPrice") || "",
     minArea: searchParams.get("minArea") || "",
@@ -67,10 +67,10 @@ function Alerts() {
       <section className="page-hero">
         <div className="container">
           <span className="eyebrow">급매 알림</span>
-          <h1 className="page-title">조건을 저장해두면 새 급매를 가장 먼저 받습니다</h1>
+          <h1 className="page-title">아파트 급매 조건을 저장해두면 새 매물을 가장 먼저 받습니다</h1>
           <p className="page-desc">
-            검색은 누구나 가능하지만, 알림 저장은 계정에 연결되어야 실제로 이어서 사용할 수
-            있습니다.
+            지도에서 자주 찾는 지역과 예산을 반복 검색하지 않도록, 아파트 전용 알림 흐름으로
+            정리했습니다.
           </p>
         </div>
       </section>
@@ -105,38 +105,20 @@ function Alerts() {
                 />
               </div>
 
-              <div className="filter-grid-two">
-                <div className="filter-group">
-                  <label htmlFor="alert-district">지역</label>
-                  <select
-                    id="alert-district"
-                    className="search-input"
-                    value={form.district}
-                    onChange={(event) => handleChange("district", event.target.value)}
-                  >
-                    {options.districtOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="filter-group">
-                  <label htmlFor="alert-type">유형</label>
-                  <select
-                    id="alert-type"
-                    className="search-input"
-                    value={form.type}
-                    onChange={(event) => handleChange("type", event.target.value)}
-                  >
-                    {options.propertyTypes.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div className="filter-group">
+                <label htmlFor="alert-district">지역</label>
+                <select
+                  id="alert-district"
+                  className="search-input"
+                  value={form.district}
+                  onChange={(event) => handleChange("district", event.target.value)}
+                >
+                  {options.districtOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="filter-grid-two">
@@ -173,7 +155,7 @@ function Alerts() {
                   id="alert-keyword"
                   type="text"
                   className="search-input"
-                  placeholder="예: 공덕, 상속 정리, 영상 현장"
+                  placeholder="예: 해운대, 동탄, 노형, 대출 만기"
                   value={form.keyword}
                   onChange={(event) => handleChange("keyword", event.target.value)}
                 />
@@ -264,7 +246,7 @@ function Alerts() {
 
                       <div className="saved-alert-meta">
                         <span>{alert.district}</span>
-                        <span>{alert.type}</span>
+                        <span>아파트</span>
                         <span>{alert.minDiscount}% 이상</span>
                         {alert.maxPrice > 0 && <span>{formatPrice(alert.maxPrice)} 이하</span>}
                       </div>

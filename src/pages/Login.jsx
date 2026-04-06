@@ -42,7 +42,7 @@ function Login() {
       <section className="page-hero">
         <div className="container">
           <span className="eyebrow">로그인</span>
-          <h1 className="page-title">저장된 알림과 문의 기록을 이어서 확인하세요</h1>
+          <h1 className="page-title">저장된 아파트 급매 알림과 문의 기록을 이어서 확인하세요</h1>
           <p className="page-desc">
             급매 알림, 매도 등록, 문의 기록은 로그인 후 계정 단위로 계속 관리할 수 있습니다.
           </p>

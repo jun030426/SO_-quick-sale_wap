@@ -11,6 +11,9 @@ import Account from "./pages/Account";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
+import Saved from "./pages/Saved";
+import BriefingDetail from "./pages/BriefingDetail";
+import BriefingArchive from "./pages/BriefingArchive";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -38,6 +41,9 @@ function App() {
           <Route path="/listings" element={<Listings />} />
           <Route path="/listings/:id" element={<ListingDetail />} />
           <Route path="/alerts" element={<Alerts />} />
+          <Route path="/briefings" element={<BriefingArchive />} />
+          <Route path="/briefings/:slug" element={<BriefingDetail />} />
+          <Route path="/saved" element={<Saved />} />
           <Route path="/sell" element={<Sell />} />
           <Route path="/account" element={<Account />} />
           <Route path="/login" element={<Login />} />

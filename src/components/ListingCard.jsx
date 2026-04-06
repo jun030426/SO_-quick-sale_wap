@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useMarketplace } from "../context/MarketplaceContext";
 import {
   formatCompactPrice,
   formatCount,
@@ -11,52 +12,70 @@ import {
 } from "../utils/marketplace";
 
 function ListingCard({ listing }) {
+  const {
+    isListingFavorited,
+    isComplexFavorited,
+    toggleListingFavorite,
+    toggleComplexFavorite,
+  } = useMarketplace();
   const engagement = getListingEngagement(listing);
   const deadline = getListingDeadline(listing);
   const savings = getListingSavings(listing);
   const rankLabel = getListingRankLabel(listing);
+  const isFavorited = isListingFavorited(listing.id);
+  const isComplexSaved = isComplexFavorited(listing);
 
   return (
     <article className="listing-card">
       <div className="listing-card-image-wrap">
         <img src={listing.image} alt={listing.title} className="listing-card-image" />
         <div className="listing-card-topline">
-          <span className="listing-badge hot">타임딜 {deadline}</span>
-          <span className="listing-badge">AI 인증</span>
+          <span className="listing-badge hot">급매 {deadline}</span>
+          <span className="listing-badge">아파트</span>
         </div>
+
+        <button
+          type="button"
+          className={`listing-save-button${isFavorited ? " active" : ""}`}
+          onClick={() => toggleListingFavorite(listing.id)}
+        >
+          {isFavorited ? "찜됨" : "찜"}
+        </button>
       </div>
 
       <div className="listing-card-body">
-        <p className="listing-kicker">{listing.district} · {listing.type} · {listing.urgentReason}</p>
-        <h3 className="listing-title">{listing.title}</h3>
-        <p className="listing-location">
-          {listing.location} · {listing.floor} · {listing.area}
-        </p>
+        <div className="listing-card-headline">
+          <p className="listing-kicker">
+            {listing.district} · {listing.urgentReason}
+          </p>
+          <h3 className="listing-title">{listing.title}</h3>
+          <p className="listing-location">
+            {listing.mapLabel || listing.location} · {listing.floor} · {listing.area}
+          </p>
+        </div>
+
+        <div className="listing-price-focus">
+          <strong>{formatPrice(listing.price)}</strong>
+          <span>
+            최근 시세 {formatCompactPrice(listing.marketPrice)} · {formatPercent(listing.discountRate)} 할인
+          </span>
+        </div>
 
         <div className="listing-score-line">
           <strong>AI 급매 지수 {rankLabel}</strong>
-          <span>시세 대비 {formatPercent(listing.discountRate)} 저렴</span>
+          <span>{formatPrice(savings)} 절감</span>
         </div>
 
-        <div className="listing-price-rail">
-          <div className="listing-price-block muted">
-            <span>시세</span>
-            <strong>{formatCompactPrice(listing.marketPrice)}</strong>
-          </div>
-          <div className="listing-price-block accent">
-            <span>타임딜가</span>
-            <strong>{formatCompactPrice(listing.price)}</strong>
-          </div>
+        <div className="listing-point-row">
+          <span>{listing.area}</span>
+          <span>{listing.floor}</span>
+          <span>{listing.builtYear}년 준공</span>
         </div>
-
-        <p className="listing-price-meta">
-          최근 3개월 동일 생활권 평균 대비 {formatPrice(savings)} 저렴
-        </p>
 
         <div className="listing-statline">
-          <span>{formatCount(engagement.views)}회 조회</span>
-          <span>❤ {formatCount(engagement.likes)}</span>
-          <span>{listing.hasReport ? "현장 리포트" : "파트너 상담"}</span>
+          <span>약 {formatCount(engagement.views)}회 조회</span>
+          <span>찜 {formatCount(engagement.likes)}</span>
+          <span>{listing.hasReport ? "현장 리포트" : "상담 연결"}</span>
         </div>
 
         <div className="listing-tags market">
@@ -67,12 +86,29 @@ function ListingCard({ listing }) {
           {listing.hasReport && <span className="tag">현장 리포트</span>}
         </div>
 
+        <div className="listing-interest-row">
+          <button
+            type="button"
+            className={`interest-chip-button${isFavorited ? " active" : ""}`}
+            onClick={() => toggleListingFavorite(listing.id)}
+          >
+            {isFavorited ? "찜한 매물" : "매물 찜"}
+          </button>
+          <button
+            type="button"
+            className={`interest-chip-button${isComplexSaved ? " active" : ""}`}
+            onClick={() => toggleComplexFavorite(listing)}
+          >
+            {isComplexSaved ? "단지 저장됨" : "단지 저장"}
+          </button>
+        </div>
+
         <div className="listing-cta-row">
-          <Link to={`/listings/${listing.id}`} className="btn btn-dark card-btn">
-            리포트 보기
+          <Link to={`/listings/${listing.id}`} className="btn btn-primary card-btn">
+            상세 보기
           </Link>
           <Link to={`/listings/${listing.id}`} className="btn btn-outline card-btn secondary">
-            상담 신청
+            상담 요청
           </Link>
         </div>
       </div>

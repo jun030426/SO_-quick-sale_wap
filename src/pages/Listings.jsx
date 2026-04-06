@@ -1,14 +1,16 @@
-import { startTransition, useDeferredValue, useMemo } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import ListingCard from "../components/ListingCard";
+import ApartmentMap from "../components/ApartmentMap";
 import { useMarketplace } from "../context/MarketplaceContext";
 import {
+  formatCompactPrice,
   formatCount,
   formatPercent,
   formatPrice,
   matchesListingFilters,
   sortListings,
 } from "../utils/marketplace";
+import { summarizeMapArea } from "../utils/location.js";
 import "../styles/listings.css";
 
 function parseBoolean(value) {
@@ -76,10 +78,32 @@ function buildSearchParams(filters) {
   return params;
 }
 
+function isListingInViewport(listing, viewport) {
+  if (!viewport) {
+    return true;
+  }
+
+  return (
+    listing.latitude >= viewport.south &&
+    listing.latitude <= viewport.north &&
+    listing.longitude >= viewport.west &&
+    listing.longitude <= viewport.east
+  );
+}
+
 function Listings() {
-  const { listings, options, stats } = useMarketplace();
+  const {
+    listings,
+    options,
+    isListingFavorited,
+    isComplexFavorited,
+    toggleListingFavorite,
+    toggleComplexFavorite,
+  } = useMarketplace();
   const [searchParams, setSearchParams] = useSearchParams();
-  const filters = readFilters(searchParams);
+  const [selectedListingId, setSelectedListingId] = useState("");
+  const [mapViewport, setMapViewport] = useState(null);
+  const filters = useMemo(() => readFilters(searchParams), [searchParams]);
   const deferredKeyword = useDeferredValue(filters.keyword);
 
   const filteredListings = useMemo(() => {
@@ -93,61 +117,69 @@ function Listings() {
     return sortListings(matched, filters.sort);
   }, [deferredKeyword, filters, listings]);
 
+  const visibleListings = useMemo(
+    () => filteredListings.filter((listing) => isListingInViewport(listing, mapViewport)),
+    [filteredListings, mapViewport],
+  );
+
+  useEffect(() => {
+    if (visibleListings.some((listing) => listing.id === selectedListingId)) {
+      return;
+    }
+
+    if (visibleListings.length > 0) {
+      setSelectedListingId(visibleListings[0].id);
+      return;
+    }
+
+    if (filteredListings.some((listing) => listing.id === selectedListingId)) {
+      return;
+    }
+
+    setSelectedListingId(filteredListings[0]?.id ?? "");
+  }, [filteredListings, selectedListingId, visibleListings]);
+
+  const selectedListing =
+    visibleListings.find((listing) => listing.id === selectedListingId) ??
+    filteredListings.find((listing) => listing.id === selectedListingId) ??
+    visibleListings[0] ??
+    filteredListings[0] ??
+    null;
+
   const districtBoards = useMemo(() => {
     return options.districtOptions
       .filter((district) => district !== "전체")
       .map((district) => {
         const districtListings = filteredListings.filter((listing) => listing.district === district);
-        const fallbackTop = listings.find((listing) => listing.district === district) ?? null;
-        const topListing = districtListings[0] ?? fallbackTop;
-        const averageDiscount =
-          districtListings.length > 0
-            ? Number(
-                (
-                  districtListings.reduce((total, listing) => total + listing.discountRate, 0) /
-                  districtListings.length
-                ).toFixed(1),
-              )
-            : 0;
 
         return {
           district,
           count: districtListings.length,
-          averageDiscount,
-          topListing,
         };
       })
-      .sort((left, right) => right.count - left.count || right.averageDiscount - left.averageDiscount);
-  }, [filteredListings, listings, options.districtOptions]);
-
-  const activeDistrict =
-    filters.district !== "전체"
-      ? filters.district
-      : districtBoards.find((item) => item.count > 0)?.district || districtBoards[0]?.district || "서울";
-
-  const spotlightListings = filteredListings
-    .filter((listing) => listing.district === activeDistrict)
-    .slice(0, 3);
+      .filter((board) => board.count > 0)
+      .sort((left, right) => right.count - left.count);
+  }, [filteredListings, options.districtOptions]);
 
   const highestDiscount =
     filteredListings.length > 0 ? Math.max(...filteredListings.map((listing) => listing.discountRate)) : 0;
 
   const marketSummary = [
     {
-      label: "AI 인증 매물",
-      value: `${stats.listingsCount}건`,
+      label: "현재 화면 매물",
+      value: `${formatCount(visibleListings.length)}건`,
     },
     {
-      label: "실시간 권역",
-      value: `${districtBoards.filter((item) => item.count > 0).length}곳`,
+      label: "전체 검색 결과",
+      value: `${formatCount(filteredListings.length)}건`,
     },
     {
-      label: "최고 할인율",
+      label: "활성 권역",
+      value: `${formatCount(districtBoards.length)}곳`,
+    },
+    {
+      label: "최대 할인율",
       value: formatPercent(highestDiscount),
-    },
-    {
-      label: "현재 검색 결과",
-      value: `${filteredListings.length}건`,
     },
   ];
 
@@ -163,6 +195,8 @@ function Listings() {
   };
 
   const resetFilters = () => {
+    setMapViewport(null);
+
     startTransition(() => {
       setSearchParams(buildSearchParams(readFilters(new URLSearchParams())), { replace: true });
     });
@@ -170,18 +204,16 @@ function Listings() {
 
   return (
     <div className="page-shell">
-      <section className="page-hero listings-hero">
-        <div className="container">
-          <span className="eyebrow">급매 지도</span>
-          <h1 className="page-title">권역 흐름과 급매 분포를 한 화면에서 확인하세요</h1>
-          <p className="page-desc">
-            홈에서 본 기회를 여기서 더 촘촘하게 비교하고, 필터와 문의까지 자연스럽게 이어갈 수
-            있습니다.
-          </p>
+      <section className="listings-hero">
+        <div className="container listings-toolbar">
+          <div className="listings-toolbar-copy">
+            <span className="eyebrow">급매 지도</span>
+            <strong>아파트 지도 탐색</strong>
+          </div>
 
-          <div className="market-summary-grid">
+          <div className="listings-toolbar-stats">
             {marketSummary.map((item) => (
-              <article key={item.label} className="market-summary-card">
+              <article key={item.label} className="market-summary-card compact">
                 <strong>{item.value}</strong>
                 <span>{item.label}</span>
               </article>
@@ -210,20 +242,16 @@ function Listings() {
                 </select>
               </div>
 
-              <div className="filter-group">
-                <label htmlFor="filter-type">유형</label>
-                <select
-                  id="filter-type"
+              <div className="filter-group wide">
+                <label htmlFor="filter-keyword">단지명 또는 키워드</label>
+                <input
+                  id="filter-keyword"
+                  type="text"
                   className="search-input"
-                  value={filters.type}
-                  onChange={(event) => updateFilters({ type: event.target.value })}
-                >
-                  {options.propertyTypes.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="예: 해운대, 동탄, 노형, 대출 만기"
+                  value={filters.keyword}
+                  onChange={(event) => updateFilters({ keyword: event.target.value })}
+                />
               </div>
 
               <div className="filter-group">
@@ -246,21 +274,9 @@ function Listings() {
                   type="number"
                   min="0"
                   className="search-input"
-                  placeholder="㎡"
+                  placeholder="m²"
                   value={filters.minArea}
                   onChange={(event) => updateFilters({ minArea: event.target.value })}
-                />
-              </div>
-
-              <div className="filter-group wide">
-                <label htmlFor="filter-keyword">키워드</label>
-                <input
-                  id="filter-keyword"
-                  type="text"
-                  className="search-input"
-                  placeholder="예: 성수, 상속 정리, 영상 현장"
-                  value={filters.keyword}
-                  onChange={(event) => updateFilters({ keyword: event.target.value })}
                 />
               </div>
 
@@ -273,9 +289,9 @@ function Listings() {
                   onChange={(event) => updateFilters({ sort: event.target.value })}
                 >
                   <option value="recommended">추천순</option>
-                  <option value="discount">할인율 높은순</option>
-                  <option value="price-low">가격 낮은순</option>
-                  <option value="newest">최신 등록순</option>
+                  <option value="discount">할인율 높은 순</option>
+                  <option value="price-low">가격 낮은 순</option>
+                  <option value="newest">최신 등록 순</option>
                 </select>
               </div>
             </div>
@@ -321,82 +337,129 @@ function Listings() {
             </div>
           </article>
 
-          <div className="map-layout">
-            <aside className="map-stage">
-              <div className="map-stage-head">
+          <div className="map-explorer-shell">
+            <aside className="map-results-sidebar">
+              <div className="map-results-sidebar-head">
                 <div>
-                  <p className="comparison-label">실시간 권역 보드</p>
-                  <h2>{activeDistrict} 급매 흐름</h2>
+                  <p className="comparison-label">현재 지도 범위</p>
+                  <h2>{formatCount(visibleListings.length)}건</h2>
+                  <p className="results-copy">
+                    지도를 이동하거나 확대·축소하면 현재 화면 안에 들어오는 매물만 좌측 목록에서 바로 비교할 수
+                    있습니다.
+                  </p>
                 </div>
-                <span className="pill accent">{formatCount(spotlightListings.length)}건 표시</span>
+                <span className="pill accent">전체 {filteredListings.length}건</span>
               </div>
 
-              <div className="map-stage-canvas">
+              <div className="district-chip-row sidebar-chip-row">
+                <button
+                  type="button"
+                  className={`district-chip${filters.district === "전체" ? " active" : ""}`}
+                  onClick={() => updateFilters({ district: "전체" })}
+                >
+                  전체
+                </button>
                 {districtBoards.map((board) => (
                   <button
                     key={board.district}
                     type="button"
-                    className={`district-hotspot${activeDistrict === board.district ? " active" : ""}`}
-                    onClick={() =>
-                      updateFilters({
-                        district: activeDistrict === board.district ? "전체" : board.district,
-                      })
-                    }
+                    className={`district-chip${filters.district === board.district ? " active" : ""}`}
+                    onClick={() => updateFilters({ district: board.district })}
                   >
-                    <strong>{board.district}</strong>
-                    <span>{board.count}건</span>
-                    <small>{formatPercent(board.averageDiscount)} 평균 할인</small>
-                    {board.topListing && <p>{board.topListing.title}</p>}
+                    {board.district} {board.count}
                   </button>
                 ))}
               </div>
 
-              <div className="map-stage-note">
-                <p>
-                  권역 버튼을 누르면 해당 지역만 바로 좁혀집니다. 실제 지도를 억지로 넣기보다,
-                  지금은 탐색 속도가 빠른 권역 보드 형태로 정리했습니다.
-                </p>
-              </div>
-            </aside>
+              {visibleListings.length > 0 ? (
+                <div className="visible-listing-scroll">
+                  {visibleListings.map((listing) => (
+                    <article
+                      key={listing.id}
+                      className={`visible-listing-item${selectedListing?.id === listing.id ? " active" : ""}`}
+                    >
+                      <button
+                        type="button"
+                        className="visible-listing-button"
+                        onClick={() => setSelectedListingId(listing.id)}
+                      >
+                        <img src={listing.image} alt={listing.title} className="visible-listing-image" />
 
-            <div className="results-panel map-results-panel">
-              <div className="results-toolbar">
-                <div>
-                  <p className="results-count">검색 결과 {filteredListings.length}건</p>
-                  <p className="results-copy">
-                    권역 보드에서 지역을 고르고, 오른쪽 결과 영역에서 바로 비교와 상세 검토까지
-                    이어집니다.
-                  </p>
-                </div>
-              </div>
+                        <div className="visible-listing-copy">
+                          <div className="visible-listing-topline">
+                            <span className="pill accent">{listing.district}</span>
+                            <span className="visible-listing-price">{formatCompactPrice(listing.price)}</span>
+                          </div>
+                          <strong>{listing.title}</strong>
+                          <p>
+                            {listing.mapLabel || listing.location} · {listing.area}
+                          </p>
+                          <small>
+                            {listing.floor} · 시세 대비 {formatPercent(listing.discountRate)} 할인
+                          </small>
+                        </div>
+                      </button>
 
-              {spotlightListings.length > 0 && (
-                <div className="spotlight-grid">
-                  {spotlightListings.map((listing) => (
-                    <Link key={listing.id} to={`/listings/${listing.id}`} className="spotlight-card">
-                      <span className="pill accent">{listing.district}</span>
-                      <strong>{listing.title}</strong>
-                      <p>
-                        {listing.location} · {listing.area}
-                      </p>
-                      <b>{formatPrice(listing.price)}</b>
-                    </Link>
-                  ))}
-                </div>
-              )}
-
-              {filteredListings.length > 0 ? (
-                <div className="listing-grid">
-                  {filteredListings.map((listing) => (
-                    <ListingCard key={listing.id} listing={listing} />
+                      <div className="visible-listing-actions">
+                        <div className="visible-listing-action-copy">
+                          <span>{listing.urgentReason}</span>
+                          <div className="visible-listing-interest-row">
+                            <button
+                              type="button"
+                              className={`interest-chip-button small${isListingFavorited(listing.id) ? " active" : ""}`}
+                              onClick={() => toggleListingFavorite(listing.id)}
+                            >
+                              {isListingFavorited(listing.id) ? "찜됨" : "매물 찜"}
+                            </button>
+                            <button
+                              type="button"
+                              className={`interest-chip-button small${isComplexFavorited(listing) ? " active" : ""}`}
+                              onClick={() => toggleComplexFavorite(listing)}
+                            >
+                              {isComplexFavorited(listing) ? "단지 저장됨" : "단지 저장"}
+                            </button>
+                          </div>
+                        </div>
+                        <Link to={`/listings/${listing.id}`} className="text-link">
+                          상세 보기
+                        </Link>
+                      </div>
+                    </article>
                   ))}
                 </div>
               ) : (
-                <div className="empty-box">
-                  <h2>조건에 맞는 급매가 아직 없습니다</h2>
-                  <p>필터를 조금 완화하거나 급매 알림으로 저장해두면 다음 등록분을 더 빨리 포착할 수 있습니다.</p>
+                <div className="empty-box compact">
+                  <h3>현재 지도 범위 안에는 매물이 없습니다</h3>
+                  <p>지도를 조금 더 넓게 보거나 다른 권역으로 이동해보세요.</p>
                 </div>
               )}
+            </aside>
+
+            <div className="map-canvas-panel">
+              <div className="map-stage-head">
+                <div>
+                  <p className="comparison-label">지도 보기</p>
+                  <h2>{summarizeMapArea(visibleListings.length > 0 ? visibleListings : filteredListings)}</h2>
+                  <p className="results-copy">
+                    지도 위에는 전체 검색 결과를 유지하고, 좌측 리스트에는 현재 화면 범위 안의 매물만 표시합니다.
+                  </p>
+                </div>
+                {selectedListing && (
+                  <div className="map-stage-selection">
+                    <span className="pill accent">선택된 매물</span>
+                    <strong>{selectedListing.title}</strong>
+                    <b>{formatPrice(selectedListing.price)}</b>
+                  </div>
+                )}
+              </div>
+
+              <ApartmentMap
+                listings={filteredListings}
+                selectedListingId={selectedListing?.id ?? ""}
+                onSelectListing={setSelectedListingId}
+                onBoundsChange={setMapViewport}
+                fallbackDistrict={selectedListing?.district || "전체"}
+              />
             </div>
           </div>
         </div>

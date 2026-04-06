@@ -270,6 +270,9 @@ function mapListingRow(row) {
     source: row.source,
     ownerUserId: row.owner_user_id ?? row.ownerUserId,
     status: row.status ?? "approved",
+    latitude: row.latitude,
+    longitude: row.longitude,
+    mapLabel: row.map_label ?? row.mapLabel,
     approved: (row.status ?? "approved") === "approved",
   });
 }
